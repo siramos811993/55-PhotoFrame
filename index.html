@@ -39,55 +39,43 @@
 
         .fixed-caption { flex-shrink: 0; margin-top: 4px; width: 100%; text-align: center; font-family: 'Caveat', cursive; color: #2a2626; line-height: 1.1; font-size: clamp(0.7rem, 1.4vw, 1.4rem); text-shadow: 0px 0px 1px rgba(0,0,0,0.1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
-        /* -------------------------------------
-           BULLETPROOF MESSAGE FLEXBOX
-        -------------------------------------- */
         .text-only-message { 
-            width: 100%; 
-            height: 100%; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center; 
-            /* Space-between naturally forces author to the bottom and content to the top */
-            justify-content: space-between; 
-            padding-top: 5%; 
-            padding-bottom: 3%;
-            font-family: 'Caveat', cursive; 
-            color: #2a2626; 
-            text-shadow: 0px 0px 1px rgba(0,0,0,0.1); 
-            overflow: hidden; 
-            transition: opacity 0.3s ease; 
-            cursor: pointer; 
+            width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; 
+            padding-top: 5%; padding-bottom: 3%; font-family: 'Caveat', cursive; color: #2a2626; text-shadow: 0px 0px 1px rgba(0,0,0,0.1); 
+            overflow: hidden; transition: opacity 0.3s ease; cursor: pointer; 
         }
-
-        .message-content-box {
-            width: 95%;
-            /* Magic Bullet: Forces the box to take up ALL available height safely */
-            flex: 1;           
-            min-height: 0;     
-            text-align: center; 
-            line-height: 1.15; 
-            font-size: clamp(0.9rem, 1.5vw, 1.5rem); 
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .message-author-box {
-            width: 95%;
-            /* Prevents the author signature from ever being squished */
-            flex-shrink: 0;    
-            text-align: right;
-            font-size: clamp(0.8rem, 1.3vw, 1.3rem); 
-            font-weight: 600;
-            padding-right: 5%;
-            margin-top: 2%; 
-        }
+        .message-content-box { width: 95%; flex: 1; min-height: 0; text-align: center; line-height: 1.15; font-size: clamp(0.9rem, 1.5vw, 1.5rem); display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+        .message-author-box { width: 95%; flex-shrink: 0; text-align: right; font-size: clamp(0.8rem, 1.3vw, 1.3rem); font-weight: 600; padding-right: 5%; margin-top: 2%; }
 
         .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.4); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #2a2626; opacity: 0; transition: opacity 0.3s ease; z-index: 20; }
         .embedded-carousel:hover .carousel-nav { opacity: 1; }
         .nav-prev { left: 2px; }
         .nav-next { right: 2px; }
+
+        /* -------------------------------------
+           CENTER CREW MORPHING VIDEO STYLING
+        -------------------------------------- */
+        #center-video-container {
+            position: absolute;
+            z-index: 15;
+            top: 12%; left: 32%; width: 35%; height: 75%;
+            overflow: hidden;
+            border-radius: 4px;
+            pointer-events: none; /* Allows clicks to pass through to the hotspot */
+        }
+        #center-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center bottom; /* Anchors the video focus to the crew at the bottom */
+            opacity: 0;
+            transition: opacity 1s ease-in-out; /* Smooth 1-second morph fade */
+            mix-blend-mode: multiply; /* Blends the video into the paper sketch */
+            filter: sepia(0.3) contrast(1.1) brightness(0.95);
+        }
+        #center-video.active {
+            opacity: 1;
+        }
 
         .modal-overlay { opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
@@ -101,13 +89,27 @@
     <main id="mainframe" class="relative w-full max-w-[1400px] mx-auto shadow-2xl overflow-hidden rounded-sm bg-[#e4d5b7]">
         <img src="55%20Frame.jpg" alt="Scrapbook Ship Photo Frame" class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
+        <!-- Left Side Informational Hotspots -->
         <div class="hotspot" style="top: 13%; left: 5%; width: 22%; height: 13%;" onclick="openModal('story')" title="Read Our Story"></div>
         <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openModal('awards')" title="View Our Awards"></div>
         <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openModal('crew')" title="Meet Our Crew"></div>
         
+        <!-- Right Side Header Hotspots -->
         <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openGalleryModal('moments')" title="View All Moments"></div>
         <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openGalleryModal('messages')" title="View All Messages"></div>
 
+        <!-- 
+            CENTER CREW MORPHING VIDEO 
+            Video is hidden by default. The hotspot above it triggers the morph.
+        -->
+        <div id="center-video-container">
+            <!-- Uses relative path to play seamlessly from your GitHub repo -->
+            <video id="center-video" src="Sen%20WS.mp4" playsinline preload="metadata"></video>
+        </div>
+        <div class="hotspot" style="top: 12%; left: 32%; width: 35%; height: 75%; z-index: 16;" onclick="toggleCenterVideo()" title="Bring Crew to Life"></div>
+
+
+        <!-- Carousels -->
         <div id="moments-carousel" class="embedded-carousel" style="top: 24%; left: 71.5%; width: 22%; height: 23%;">
             <div class="carousel-nav nav-prev" onclick="changeMoment(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMoment(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
@@ -124,6 +126,7 @@
             </div>
         </div>
 
+        <!-- Global Lightbox Modal -->
         <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
             <div id="modal-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-5xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
                 <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
@@ -144,6 +147,32 @@
         // PASTE YOUR NEW APPS SCRIPT DEPLOYMENT URL HERE
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygvkuti5gfBd4C3lk66ROyIEOCA86Tk6V7BvcAqVLZvyz2G1bWDNJyQQWjFZ9IuNWO/exec"; 
 
+        // ----------------------------------------------------
+        // Center Crew Video Morphing Logic
+        // ----------------------------------------------------
+        const centerVideo = document.getElementById('center-video');
+
+        function toggleCenterVideo() {
+            if (centerVideo.paused) {
+                centerVideo.play();
+                centerVideo.classList.add('active'); // Fades in smoothly
+            } else {
+                centerVideo.classList.remove('active'); // Fades out smoothly
+                // Wait for the 1-second CSS fade to finish before actually pausing the video
+                setTimeout(() => { 
+                    if (!centerVideo.classList.contains('active')) centerVideo.pause(); 
+                }, 1000);
+            }
+        }
+
+        // Auto-fade out when the video finishes playing
+        centerVideo.addEventListener('ended', () => {
+            centerVideo.classList.remove('active');
+        });
+
+        // ----------------------------------------------------
+        // Data Configuration
+        // ----------------------------------------------------
         const modalData = {
             'story': {
                 title: "Our Story",
@@ -154,8 +183,8 @@
             'awards': {
                 title: "Our Awards",
                 content: `<ul class="list-disc pl-6 space-y-4">
-                            <li><strong>MSRF Best Unit Award (2023)</strong> - Recognized for outstanding operational readiness.</li>
-                            <li><strong>TOP Gun</strong> - Etc etc...</li>
+                            <li><strong>Best Fleet Unit (2023)</strong> - Recognized for outstanding operational readiness.</li>
+                            <li><strong>Excellence in Navigation</strong> - For zero safety incidents during our longest deployment.</li>
                             <li><strong>Commendation of Service</strong> - Awarded during the joint regional maritime exercises.</li>
                           </ul>`
             },
@@ -202,6 +231,9 @@
 
         window.onload = fetchScrapbookData;
 
+        // ----------------------------------------------------
+        // Carousel Logic
+        // ----------------------------------------------------
         function renderMoment() {
             if(momentsData.length === 0) return;
             const container = document.getElementById('moments-content');
@@ -237,8 +269,6 @@
                         </div>
                     `;
                     
-                    // Double RequestAnimationFrame guarantees the mobile browser has fully drawn the Flexbox CSS
-                    // before we calculate the pixel height, stopping the "1-line glitch".
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
                             const contentBox = document.getElementById('msg-content');
@@ -247,14 +277,10 @@
                             contentBox.style.webkitLineClamp = 'unset';
                             authorBox.innerHTML = `- ${data.author || 'Crew'}`;
                             
-                            // Because contentBox is flex: 1, its clientHeight is perfectly 
-                            // constrained to the exact remaining space above the author line!
                             if (contentBox.scrollHeight > contentBox.clientHeight) {
-                                // Start with a safe maximum line count
                                 let lines = 25; 
                                 contentBox.style.webkitLineClamp = lines;
                                 
-                                // Systematically reduce lines until the scrollHeight perfectly matches the box
                                 while (contentBox.scrollHeight > contentBox.clientHeight && lines > 1) {
                                     lines--;
                                     contentBox.style.webkitLineClamp = lines;
@@ -302,6 +328,9 @@
         addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
         addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
 
+        // ----------------------------------------------------
+        // Modals & Navigation
+        // ----------------------------------------------------
         function openGalleryModal(type) {
             let title = '';
             let htmlContent = '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
@@ -334,6 +363,12 @@
             document.body.classList.add('modal-open');
             modal.classList.add('active');
             if (window.visualViewport) syncVisualViewport();
+            
+            // Auto-pause the center morphing video if the modal is opened
+            if (!centerVideo.paused) {
+                centerVideo.pause();
+                centerVideo.classList.remove('active');
+            }
         }
 
         const modal = document.getElementById('gallery-modal');
@@ -359,6 +394,12 @@
             document.body.classList.add('modal-open');
             modal.classList.add('active');
             if (window.visualViewport) syncVisualViewport();
+            
+            // Auto-pause the center morphing video if the modal is opened
+            if (!centerVideo.paused) {
+                centerVideo.pause();
+                centerVideo.classList.remove('active');
+            }
         }
 
         function closeModal() {
