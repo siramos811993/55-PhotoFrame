@@ -60,6 +60,7 @@
         <div class="hotspot" style="top: 13%; left: 5%; width: 22%; height: 13%;" onclick="openModal('story')" title="Read Our Story"></div>
         <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openModal('awards')" title="View Our Awards"></div>
         <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openModal('crew')" title="Meet Our Crew"></div>
+        
         <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openGalleryModal('moments')" title="View All Moments"></div>
         <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openGalleryModal('messages')" title="View All Messages"></div>
 
@@ -97,21 +98,43 @@
 
     <script>
         // PASTE YOUR NEW APPS SCRIPT DEPLOYMENT URL HERE
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygvkuti5gfBd4C3lk66ROyIEOCA86Tk6V7BvcAqVLZvyz2G1bWDNJyQQWjFZ9IuNWO/exec"; 
+        const SCRIPT_URL = "YOUR_WEB_APP_URL_HERE"; 
 
-        // Empty Data Structures (Populated by Google Sheets)
-        let modalData = {
-            'story': { title: "Our Story", content: "" },
-            'awards': { title: "Our Awards", content: "" },
-            'crew': { title: "Meet Our Crew", content: "" }
+        // ----------------------------------------------------
+        // STATIC DATA (Story, Awards, Crew)
+        // Hardcoded so you can manage their unique layouts directly in HTML
+        // ----------------------------------------------------
+        const modalData = {
+            'story': {
+                title: "Our Story",
+                content: `<p class="mb-4">From our very first commissioning to our final patrol, the 55 Crew has weathered every storm together. We stood our watch through countless days and nights, forging an unbreakable bond.</p>
+                          <img src="https://placehold.co/800x400/2a2626/f4f1ea?text=Historical+Ship+Photo" class="w-full h-auto rounded shadow-md border border-ink/20 mb-4" alt="Historical photo">
+                          <p>This ship was more than steel and engines; it was our home away from home.</p>`
+            },
+            'awards': {
+                title: "Our Awards",
+                content: `<ul class="list-disc pl-6 space-y-4">
+                            <li><strong>Best Fleet Unit (2023)</strong> - Recognized for outstanding operational readiness.</li>
+                            <li><strong>Excellence in Navigation</strong> - For zero safety incidents during our longest deployment.</li>
+                            <li><strong>Commendation of Service</strong> - Awarded during the joint regional maritime exercises.</li>
+                          </ul>`
+            },
+            'crew': {
+                title: "Meet Our Crew",
+                content: `<p class="mb-4">The heart of this vessel is the men and women who served aboard her.</p>
+                          <img src="https://placehold.co/800x500/2a2626/f4f1ea?text=Full+Crew+Roster" class="w-full h-auto rounded shadow-md border border-ink/20" alt="Crew roster">`
+            }
         };
+
+        // ----------------------------------------------------
+        // DYNAMIC DATA (Moments & Messages)
+        // Managed exclusively through the Google Sheet
+        // ----------------------------------------------------
         let momentsData = [];
         let messagesData = [];
-        
         let currentMoment = 0;
         let currentMessage = 0;
 
-        // FETCH DATA FROM GOOGLE SHEETS
         async function fetchScrapbookData() {
             try {
                 const response = await fetch(SCRIPT_URL);
@@ -121,45 +144,27 @@
                     const category = row.Category ? row.Category.toLowerCase().trim() : '';
                     const type = row.Media_Type ? row.Media_Type.toLowerCase().trim() : 'text';
                     
-                    // Parse Moments
                     if (category === 'moments') {
                         momentsData.push({ type: type, src: row.Media_URL, caption: row.Content });
-                    } 
-                    // Parse Messages
-                    else if (category === 'messages') {
+                    } else if (category === 'messages') {
                         let formattedCaption = row.Author_or_Title ? `${row.Content} - ${row.Author_or_Title}` : row.Content;
                         messagesData.push({ type: type, src: row.Media_URL, content: formattedCaption, caption: formattedCaption });
-                    } 
-                    // Parse Modals (Story, Awards, Crew)
-                    else if (['story', 'awards', 'crew'].includes(category)) {
-                        if (row.Author_or_Title) modalData[category].title = row.Author_or_Title;
-                        
-                        if (type === 'image') {
-                            modalData[category].content += `<img src="${row.Media_URL}" class="w-full h-auto rounded shadow-md border border-ink/20 mb-4 bg-[#fbf8f1] object-contain">`;
-                        } else if (type === 'video') {
-                            modalData[category].content += `<video src="${row.Media_URL}" controls class="w-full h-auto rounded shadow-md border border-ink/20 mb-4 bg-black"></video>`;
-                        } else {
-                            modalData[category].content += `<div class="mb-4">${row.Content}</div>`;
-                        }
                     }
                 });
 
-                // Fallbacks in case sheet is completely empty
-                if (momentsData.length === 0) momentsData = [{type: 'text', caption: 'Update Google Sheet to add moments!'}];
-                if (messagesData.length === 0) messagesData = [{type: 'text', content: 'Update Google Sheet to add messages!'}];
+                if (momentsData.length === 0) momentsData = [{type: 'text', caption: 'No moments added to Google Sheet yet!'}];
+                if (messagesData.length === 0) messagesData = [{type: 'text', content: 'No messages added to Google Sheet yet!'}];
 
-                // Render Initial Content
                 renderMoment();
                 renderMessage();
 
             } catch (error) {
                 console.error("Database connection failed:", error);
-                document.getElementById('moments-content').innerHTML = '<div class="text-only-message tilt-left">Database Error</div>';
-                document.getElementById('messages-content').innerHTML = '<div class="text-only-message tilt-right">Database Error</div>';
+                document.getElementById('moments-content').innerHTML = '<div class="text-only-message tilt-left text-sm">Failed to connect to Google Sheet. Check API URL.</div>';
+                document.getElementById('messages-content').innerHTML = '<div class="text-only-message tilt-right text-sm">Failed to connect to Google Sheet. Check API URL.</div>';
             }
         }
 
-        // Initialize Fetch on Page Load
         window.onload = fetchScrapbookData;
 
         // ----------------------------------------------------
