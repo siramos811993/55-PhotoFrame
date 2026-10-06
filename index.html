@@ -84,18 +84,29 @@
             transition: opacity 0.3s ease;
         }
 
-        .moment-media, .message-media {
+        /* Moments gets 72% because the note is taller */
+        .moment-media {
             max-width: 90%;
-            max-height: 75%; 
+            max-height: 72%; 
             object-fit: contain; 
             mix-blend-mode: multiply;
             filter: sepia(0.3) contrast(1.1) brightness(0.95); 
             border-radius: 2px;
             box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
+            transform: rotate(-1deg); 
         }
-        /* Slightly different tilts for visual variety */
-        .moment-media { transform: rotate(-1deg); }
-        .message-media { transform: rotate(1deg); }
+
+        /* Messages gets 55% because the note is significantly shorter, ensuring room for text */
+        .message-media {
+            max-width: 90%;
+            max-height: 55%; 
+            object-fit: contain; 
+            mix-blend-mode: multiply;
+            filter: sepia(0.3) contrast(1.1) brightness(0.95); 
+            border-radius: 2px;
+            box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
+            transform: rotate(1deg); 
+        }
 
         .moment-caption, .message-caption {
             font-family: 'Caveat', cursive;
@@ -103,7 +114,7 @@
             text-align: center;
             line-height: 1.1;
             width: 95%;
-            margin-top: 6px;
+            margin-top: 4px;
             text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -166,36 +177,25 @@
              alt="Scrapbook Ship Photo Frame" 
              class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
-        <!-- Standard Information Hotspots -->
         <div class="hotspot" style="top: 13%; left: 5%; width: 22%; height: 13%;" onclick="openModal('story')" title="Read Our Story"></div>
         <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openModal('awards')" title="View Our Awards"></div>
         <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openModal('crew')" title="Meet Our Crew"></div>
 
-        <!-- Header Hotspots (Clickable Labels) -->
-        <!-- Placed perfectly over the drawn tape headers to open the full galleries -->
         <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openGalleryModal('moments')" title="View All Moments"></div>
         <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openGalleryModal('messages')" title="View All Messages"></div>
 
-
-        <!-- Carousels -->
         <div id="moments-carousel" class="embedded-carousel" style="top: 23%; left: 71.5%; width: 22%; height: 23.5%;">
             <div class="carousel-nav nav-prev" onclick="changeMoment(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMoment(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             <div id="moments-content" class="w-full h-full flex items-center justify-center"></div>
         </div>
 
-        <!-- 
-          MESSAGES CONTAINER FIX:
-          Shifted top to 63.5% and severely restricted height to 19%. 
-          This physically blocks the bottom of the container from touching the drawn tape.
-        -->
         <div id="messages-carousel" class="embedded-carousel" style="top: 63.5%; left: 71.5%; width: 22%; height: 19%;">
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             <div id="messages-content" class="w-full h-full flex items-start justify-center pt-1 sm:pt-2"></div>
         </div>
 
-        <!-- Global Lightbox Modal -->
         <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
             <div id="modal-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-5xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
                 <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
@@ -250,10 +250,6 @@
         let currentMoment = 0;
         let currentMessage = 0;
 
-        // ----------------------------------------------------
-        // Carousel Rendering Logic
-        // ----------------------------------------------------
-
         function renderMoment() {
             const container = document.getElementById('moments-content');
             const data = momentsData[currentMoment];
@@ -266,15 +262,17 @@
                 
                 let captionHtml = data.caption ? `<div class="moment-caption" id="current-caption-box">${data.caption}</div>` : '';
                 
-                container.innerHTML = `<div class="moment-wrapper">${mediaHtml}${captionHtml}</div>`;
+                container.innerHTML = `<div class="moment-wrapper" id="moment-sizing-wrapper">${mediaHtml}${captionHtml}</div>`;
                 
                 if (data.caption) {
+                    const wrapper = document.getElementById('moment-sizing-wrapper');
                     const captionBox = document.getElementById('current-caption-box');
                     let fontSize = 1.6; 
                     captionBox.style.fontSize = fontSize + 'rem';
                     
                     requestAnimationFrame(() => {
-                        while (captionBox.scrollHeight > captionBox.clientHeight && fontSize > 0.6) {
+                        // Checks if the TOTAL wrapper (image + text) is overflowing the container bounds
+                        while (wrapper.scrollHeight > container.clientHeight * 0.95 && fontSize > 0.6) {
                             fontSize -= 0.05;
                             captionBox.style.fontSize = fontSize + 'rem';
                         }
@@ -293,7 +291,6 @@
             container.style.opacity = 0;
             setTimeout(() => {
                 
-                // Render Traditional Text Message
                 if (data.type === 'text') {
                     container.innerHTML = `<div class="message-note" id="current-message-box">${data.content}</div>`;
                     
@@ -309,7 +306,6 @@
                         container.style.opacity = 1;
                     });
                 } 
-                // Render Media/Video Message using identical layout rules to Moments
                 else if (data.type === 'video' || data.type === 'image') {
                     let mediaHtml = data.type === 'video' 
                         ? `<video src="${data.src}" class="message-media" autoplay loop muted playsinline></video>`
@@ -317,15 +313,17 @@
                     
                     let captionHtml = data.caption ? `<div class="message-caption" id="current-msg-caption-box">${data.caption}</div>` : '';
                     
-                    container.innerHTML = `<div class="message-wrapper">${mediaHtml}${captionHtml}</div>`;
+                    container.innerHTML = `<div class="message-wrapper" id="message-sizing-wrapper">${mediaHtml}${captionHtml}</div>`;
                     
                     if (data.caption) {
+                        const wrapper = document.getElementById('message-sizing-wrapper');
                         const captionBox = document.getElementById('current-msg-caption-box');
                         let fontSize = 1.6; 
                         captionBox.style.fontSize = fontSize + 'rem';
                         
                         requestAnimationFrame(() => {
-                            while (captionBox.scrollHeight > captionBox.clientHeight && fontSize > 0.6) {
+                            // Checks if the TOTAL wrapper (video + text) is overflowing the container bounds
+                            while (wrapper.scrollHeight > container.clientHeight * 0.95 && fontSize > 0.6) {
                                 fontSize -= 0.05;
                                 captionBox.style.fontSize = fontSize + 'rem';
                             }
@@ -338,7 +336,6 @@
             }, 150);
         }
 
-        // Navigation Functions
         function changeMoment(dir) {
             currentMoment += dir;
             if (currentMoment >= momentsData.length) currentMoment = 0;
@@ -356,7 +353,6 @@
         renderMoment();
         renderMessage();
 
-        // Swipe Functionality
         function addSwipeListener(elementId, callbackPrev, callbackNext) {
             const el = document.getElementById(elementId);
             let touchstartX = 0;
@@ -371,11 +367,6 @@
         }
         addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
         addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
-
-
-        // ----------------------------------------------------
-        // Dynamic Grid Gallery Modals (For Header Clicks)
-        // ----------------------------------------------------
 
         function openGalleryModal(type) {
             let title = '';
@@ -426,10 +417,6 @@
             if (window.visualViewport) syncVisualViewport();
         }
 
-        // ----------------------------------------------------
-        // Base Modal Logic (Shared)
-        // ----------------------------------------------------
-
         const modal = document.getElementById('gallery-modal');
         const modalContent = document.getElementById('modal-content-wrapper');
 
@@ -469,7 +456,6 @@
             document.body.classList.remove('modal-open');
             modalContent.style.transform = 'translate(0, 0) scale(1)';
             
-            // Stop any playing videos in the grid when closed
             const videos = document.querySelectorAll('#modal-body video');
             videos.forEach(vid => vid.pause());
 
