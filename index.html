@@ -39,46 +39,46 @@
 
         .fixed-caption { flex-shrink: 0; margin-top: 4px; width: 100%; text-align: center; font-family: 'Caveat', cursive; color: #2a2626; line-height: 1.1; font-size: clamp(0.7rem, 1.4vw, 1.4rem); text-shadow: 0px 0px 1px rgba(0,0,0,0.1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
-        /* UPDATED MESSAGE STYLING */
-        /* Aligns text to flex-start (Top) instead of center */
+        /* -------------------------------------
+           UPDATED MESSAGE STYLING
+        -------------------------------------- */
         .text-only-message { 
             width: 100%; 
             height: 100%; 
             display: flex; 
             flex-direction: column;
             align-items: center; 
-            justify-content: flex-start; /* Aligns to Top */
-            padding-top: 2%; /* Slight buffer from the top of the box */
+            /* Anchors the text to the absolute top of the box so the beginning is never cut off */
+            justify-content: flex-start; 
+            padding-top: 5%; 
+            padding-bottom: 2%;
             font-family: 'Caveat', cursive; 
             color: #2a2626; 
-            text-align: center; 
             text-shadow: 0px 0px 1px rgba(0,0,0,0.1); 
             overflow: hidden; 
             transition: opacity 0.3s ease; 
-            cursor: pointer; /* Indicates it can be clicked to read more */
+            cursor: pointer; 
         }
 
-        /* Container for the actual text content */
         .message-content-box {
-            line-height: 1.1; 
-            /* Locks the font size to something highly readable */
-            font-size: clamp(0.9rem, 1.6vw, 1.6rem); 
+            width: 95%;
+            text-align: center; 
+            line-height: 1.15; 
+            font-size: clamp(0.85rem, 1.4vw, 1.4rem); 
             display: -webkit-box;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            width: 95%;
-            /* Will be dynamically assigned -webkit-line-clamp via JS */
+            /* -webkit-line-clamp is applied dynamically by JS */
         }
 
-        /* The Author attribution line (including the ...) */
         .message-author-box {
-            margin-top: 4px;
-            font-size: clamp(0.8rem, 1.4vw, 1.4rem); 
-            font-weight: 600;
-            flex-shrink: 0;
             width: 95%;
-            text-align: right; /* Standard signature alignment */
+            text-align: right;
+            font-size: clamp(0.75rem, 1.2vw, 1.2rem); 
+            font-weight: 600;
             padding-right: 5%;
+            /* Pushes the author to the bottom of the available space */
+            margin-top: auto; 
         }
 
         .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.4); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #2a2626; opacity: 0; transition: opacity 0.3s ease; z-index: 20; }
@@ -113,7 +113,8 @@
             </div>
         </div>
 
-        <div id="messages-carousel" class="embedded-carousel" style="top: 64.5%; left: 71.5%; width: 22%; height: 18%;">
+        <!-- Height expanded to 23.5% to pull the bottom lower -->
+        <div id="messages-carousel" class="embedded-carousel" style="top: 64%; left: 71.5%; width: 22%; height: 23.5%;">
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             <div id="messages-content" class="w-full h-full flex items-center justify-center">
@@ -180,7 +181,6 @@
                     if (category === 'moments') {
                         momentsData.push({ type: type, src: row.Media_URL, caption: row.Content, author: row.Author_or_Title });
                     } else if (category === 'messages') {
-                        // Store the raw content and author separately so we can build the ellipsis logic
                         messagesData.push({ type: type, src: row.Media_URL, content: row.Content, author: row.Author_or_Title });
                     }
                 });
@@ -199,10 +199,6 @@
         }
 
         window.onload = fetchScrapbookData;
-
-        // ----------------------------------------------------
-        // Carousel Rendering Logic
-        // ----------------------------------------------------
 
         function renderMoment() {
             if(momentsData.length === 0) return;
@@ -232,8 +228,6 @@
             container.style.opacity = 0;
             setTimeout(() => {
                 if (data.type === 'text') {
-                    // Structure the HTML to allow for the dynamic cut-off
-                    // Added an onclick to open the gallery if they click the text
                     container.innerHTML = `
                         <div class="text-only-message tilt-right" id="current-message-box" onclick="openGalleryModal('messages')" title="Click to read full messages">
                             <div class="message-content-box" id="msg-content">${data.content}</div>
@@ -241,36 +235,30 @@
                         </div>
                     `;
                     
-                    const messageBox = document.getElementById('current-message-box');
-                    const contentBox = document.getElementById('msg-content');
-                    const authorBox = document.getElementById('msg-author');
-                    
-                    // Allow the browser to render the text
                     requestAnimationFrame(() => {
-                        // Calculate how many lines of text we can safely fit.
-                        // We use the container height, subtract a small margin for the author line, 
-                        // and divide by an estimated line-height in pixels.
-                        const containerHeight = messageBox.clientHeight;
-                        const authorHeightEstimate = 20; 
-                        const lineHeightEstimate = 22; 
+                        const messageBox = document.getElementById('current-message-box');
+                        const contentBox = document.getElementById('msg-content');
+                        const authorBox = document.getElementById('msg-author');
                         
-                        let maxLines = Math.floor((containerHeight - authorHeightEstimate) / lineHeightEstimate);
+                        // Reset clamp to measure true height
+                        contentBox.style.webkitLineClamp = 'unset';
+                        authorBox.innerHTML = `- ${data.author || 'Crew'}`;
                         
-                        // Failsafe: ensure at least 1 line is shown
-                        if (maxLines < 1) maxLines = 1;
-
-                        // Apply the strict line clamp CSS
-                        contentBox.style.webkitLineClamp = maxLines;
-
-                        // Check if the text actually overflowed the limits we just set
-                        if (contentBox.scrollHeight > contentBox.clientHeight) {
-                            // Text was cut off! Show the ellipsis and author
+                        // Total available height minus the author signature and a 7% buffer
+                        const availableHeight = messageBox.clientHeight - authorBox.clientHeight - (messageBox.clientHeight * 0.07);
+                        
+                        if (contentBox.scrollHeight > availableHeight) {
+                            // If text overflows, systematically clamp it line-by-line until it fits
+                            let lines = 12; 
+                            contentBox.style.webkitLineClamp = lines;
+                            
+                            while (contentBox.scrollHeight > availableHeight && lines > 1) {
+                                lines--;
+                                contentBox.style.webkitLineClamp = lines;
+                            }
+                            // Append the "..." to the author line to signify there is more
                             authorBox.innerHTML = `... - ${data.author || 'Crew'}`;
-                        } else {
-                            // Text fit perfectly. Just show the author normally.
-                            authorBox.innerHTML = `- ${data.author || 'Crew'}`;
                         }
-                        
                         container.style.opacity = 1;
                     });
                 } else {
@@ -311,10 +299,6 @@
         addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
         addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
 
-        // ----------------------------------------------------
-        // Modals
-        // ----------------------------------------------------
-
         function openGalleryModal(type) {
             let title = '';
             let htmlContent = '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
@@ -323,10 +307,10 @@
 
             dataset.forEach(item => {
                 if (item.type === 'text') {
-                    // For the gallery view, we do not truncate the text. It displays fully.
+                    // Full text displayed in the Gallery (no truncation)
                     htmlContent += `
                         <div class="flex flex-col items-center justify-center bg-white/40 p-6 rounded shadow-sm border border-ink/5 min-h-[200px]">
-                            <p class="font-handwritten text-2xl text-ink text-center leading-tight mb-2">${item.content}</p>
+                            <p class="font-handwritten text-2xl text-ink text-center leading-tight mb-2">${item.content || item.caption}</p>
                             <p class="font-handwritten text-xl text-ink/80 text-right w-full">- ${item.author || 'Crew'}</p>
                         </div>`;
                 } else {
