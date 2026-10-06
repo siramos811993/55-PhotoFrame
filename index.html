@@ -82,8 +82,8 @@
 
         .moment-media {
             max-width: 90%;
-            /* Reduced max-height to 65% to leave plenty of room for the caption */
-            max-height: 65%; 
+            /* Restored max-height to 75% as requested */
+            max-height: 75%; 
             object-fit: contain; 
             mix-blend-mode: multiply;
             filter: sepia(0.3) contrast(1.1) brightness(0.95); 
@@ -96,8 +96,8 @@
             font-family: 'Caveat', cursive;
             color: #2a2626;
             text-align: center;
-            /* Updated clamp to scale down properly and fit inside the note */
-            font-size: clamp(0.8rem, 1vw, 1.4rem);
+            /* Kept font size small to ensure it stays at the bottom */
+            font-size: clamp(0.9rem, 1.2vw, 1.3rem);
             margin-top: 4px;
             line-height: 1.1;
             max-width: 95%;
@@ -109,7 +109,6 @@
             font-family: 'Caveat', cursive;
             color: #2a2626;
             text-align: center;
-            /* Tighter line-height to compact longer messages */
             line-height: 1.1;
             width: 95%;
             transform: rotate(1deg);
@@ -169,10 +168,6 @@
             <div id="moments-content" class="w-full h-full flex items-center justify-center"></div>
         </div>
 
-        <!-- 
-          Shifted messages up (top: 64%) and reduced height (height: 21%) 
-          to enforce strict containment within the drawn note.
-        -->
         <div id="messages-carousel" class="embedded-carousel" style="top: 64%; left: 71.5%; width: 22%; height: 21%;">
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
@@ -267,7 +262,6 @@
                 note.style.fontSize = fontSize + 'rem';
                 
                 requestAnimationFrame(() => {
-                    // Script dynamically shrinks text until it fully fits within 95% of the container height
                     while (note.scrollHeight > container.clientHeight * 0.95 && fontSize > 0.5) {
                         fontSize -= 0.1;
                         note.style.fontSize = fontSize + 'rem';
