@@ -40,7 +40,7 @@
         .fixed-caption { flex-shrink: 0; margin-top: 4px; width: 100%; text-align: center; font-family: 'Caveat', cursive; color: #2a2626; line-height: 1.1; font-size: clamp(0.7rem, 1.4vw, 1.4rem); text-shadow: 0px 0px 1px rgba(0,0,0,0.1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         
         /* -------------------------------------
-           UPDATED MESSAGE STYLING
+           BULLETPROOF MESSAGE FLEXBOX
         -------------------------------------- */
         .text-only-message { 
             width: 100%; 
@@ -48,10 +48,10 @@
             display: flex; 
             flex-direction: column;
             align-items: center; 
-            /* Anchors the text to the absolute top of the box so the beginning is never cut off */
-            justify-content: flex-start; 
+            /* Space-between naturally forces author to the bottom and content to the top */
+            justify-content: space-between; 
             padding-top: 5%; 
-            padding-bottom: 2%;
+            padding-bottom: 3%;
             font-family: 'Caveat', cursive; 
             color: #2a2626; 
             text-shadow: 0px 0px 1px rgba(0,0,0,0.1); 
@@ -62,23 +62,26 @@
 
         .message-content-box {
             width: 95%;
+            /* Magic Bullet: Forces the box to take up ALL available height safely */
+            flex: 1;           
+            min-height: 0;     
             text-align: center; 
             line-height: 1.15; 
-            font-size: clamp(0.85rem, 1.4vw, 1.4rem); 
+            font-size: clamp(0.9rem, 1.5vw, 1.5rem); 
             display: -webkit-box;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            /* -webkit-line-clamp is applied dynamically by JS */
         }
 
         .message-author-box {
             width: 95%;
+            /* Prevents the author signature from ever being squished */
+            flex-shrink: 0;    
             text-align: right;
-            font-size: clamp(0.75rem, 1.2vw, 1.2rem); 
+            font-size: clamp(0.8rem, 1.3vw, 1.3rem); 
             font-weight: 600;
             padding-right: 5%;
-            /* Pushes the author to the bottom of the available space */
-            margin-top: auto; 
+            margin-top: 2%; 
         }
 
         .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.4); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #2a2626; opacity: 0; transition: opacity 0.3s ease; z-index: 20; }
@@ -113,7 +116,6 @@
             </div>
         </div>
 
-        <!-- Height expanded to 23.5% to pull the bottom lower -->
         <div id="messages-carousel" class="embedded-carousel" style="top: 64%; left: 71.5%; width: 22%; height: 23.5%;">
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
@@ -152,8 +154,8 @@
             'awards': {
                 title: "Our Awards",
                 content: `<ul class="list-disc pl-6 space-y-4">
-                            <li><strong>Best Fleet Unit (2023)</strong> - Recognized for outstanding operational readiness.</li>
-                            <li><strong>Excellence in Navigation</strong> - For zero safety incidents during our longest deployment.</li>
+                            <li><strong>MSRF Best Unit Award (2023)</strong> - Recognized for outstanding operational readiness.</li>
+                            <li><strong>TOP Gun</strong> - Etc etc...</li>
                             <li><strong>Commendation of Service</strong> - Awarded during the joint regional maritime exercises.</li>
                           </ul>`
             },
@@ -208,7 +210,7 @@
             container.style.opacity = 0;
             setTimeout(() => {
                 if (data.type === 'text') {
-                    container.innerHTML = `<div class="text-only-message tilt-left">${data.caption}</div>`;
+                    container.innerHTML = `<div class="text-only-message tilt-left"><div class="message-content-box">${data.caption}</div></div>`;
                 } else {
                     let mediaHtml = data.type === 'video' 
                         ? `<video src="${data.src}" class="fixed-media tilt-left" autoplay loop muted playsinline></video>`
@@ -235,31 +237,32 @@
                         </div>
                     `;
                     
+                    // Double RequestAnimationFrame guarantees the mobile browser has fully drawn the Flexbox CSS
+                    // before we calculate the pixel height, stopping the "1-line glitch".
                     requestAnimationFrame(() => {
-                        const messageBox = document.getElementById('current-message-box');
-                        const contentBox = document.getElementById('msg-content');
-                        const authorBox = document.getElementById('msg-author');
-                        
-                        // Reset clamp to measure true height
-                        contentBox.style.webkitLineClamp = 'unset';
-                        authorBox.innerHTML = `- ${data.author || 'Crew'}`;
-                        
-                        // Total available height minus the author signature and a 7% buffer
-                        const availableHeight = messageBox.clientHeight - authorBox.clientHeight - (messageBox.clientHeight * 0.07);
-                        
-                        if (contentBox.scrollHeight > availableHeight) {
-                            // If text overflows, systematically clamp it line-by-line until it fits
-                            let lines = 12; 
-                            contentBox.style.webkitLineClamp = lines;
+                        requestAnimationFrame(() => {
+                            const contentBox = document.getElementById('msg-content');
+                            const authorBox = document.getElementById('msg-author');
                             
-                            while (contentBox.scrollHeight > availableHeight && lines > 1) {
-                                lines--;
+                            contentBox.style.webkitLineClamp = 'unset';
+                            authorBox.innerHTML = `- ${data.author || 'Crew'}`;
+                            
+                            // Because contentBox is flex: 1, its clientHeight is perfectly 
+                            // constrained to the exact remaining space above the author line!
+                            if (contentBox.scrollHeight > contentBox.clientHeight) {
+                                // Start with a safe maximum line count
+                                let lines = 25; 
                                 contentBox.style.webkitLineClamp = lines;
+                                
+                                // Systematically reduce lines until the scrollHeight perfectly matches the box
+                                while (contentBox.scrollHeight > contentBox.clientHeight && lines > 1) {
+                                    lines--;
+                                    contentBox.style.webkitLineClamp = lines;
+                                }
+                                authorBox.innerHTML = `... - ${data.author || 'Crew'}`;
                             }
-                            // Append the "..." to the author line to signify there is more
-                            authorBox.innerHTML = `... - ${data.author || 'Crew'}`;
-                        }
-                        container.style.opacity = 1;
+                            container.style.opacity = 1;
+                        });
                     });
                 } else {
                     let mediaHtml = data.type === 'video' 
@@ -307,7 +310,6 @@
 
             dataset.forEach(item => {
                 if (item.type === 'text') {
-                    // Full text displayed in the Gallery (no truncation)
                     htmlContent += `
                         <div class="flex flex-col items-center justify-center bg-white/40 p-6 rounded shadow-sm border border-ink/5 min-h-[200px]">
                             <p class="font-handwritten text-2xl text-ink text-center leading-tight mb-2">${item.content || item.caption}</p>
