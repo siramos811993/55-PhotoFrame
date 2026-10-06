@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>We Stand Our Watch - Interactive Frame</title>
+    <title>We Stand Our Watch - 55 Crew Scrapbook</title>
     
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,23 +11,23 @@
     <!-- FontAwesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
-    <!-- Google Fonts: Playfair Display for elegant maritime theme -->
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Playfair Display & Caveat (for handwritten notes) -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        navy: '#0A192F',
-                        navy_light: '#112240',
-                        gold: '#D4AF37',
-                        gold_light: '#F3E5AB',
+                        ink: '#2a2626',      // Dark vintage ink
+                        sepia: '#e4d5b7',    // Vintage paper tone
+                        navy: '#1a293b',     // Keeping navy for modal headers
                         parchment: '#f4f1ea' 
                     },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
-                        sans: ['Inter', 'sans-serif']
+                        handwritten: ['Caveat', 'cursive'],
+                        sans: ['system-ui', 'sans-serif']
                     }
                 }
             }
@@ -36,236 +36,344 @@
 
     <style>
         body {
-            background-color: #050b14; 
-            font-family: 'Inter', sans-serif;
-            /* Prevents background from scrolling when modal is open */
+            background-color: #1a1a1a; /* Dark background to frame the scrapbook */
             overflow-x: hidden;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
         body.modal-open {
             overflow: hidden;
         }
 
+        /* Hotspot Styling (Left Side Tags) */
         .hotspot {
             position: absolute;
             cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            border-radius: 8px;
             z-index: 10;
+            border-radius: 8px;
+            /* Debug border: uncomment next line to see clickable areas during setup */
+            /* border: 2px solid rgba(255, 0, 0, 0.5); background: rgba(255, 0, 0, 0.1); */
         }
 
+        /* Subtle hover effect for the tags */
         .hotspot:hover {
-            background-color: rgba(212, 175, 55, 0.15); 
-            border-color: rgba(212, 175, 55, 0.8); 
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: brightness(1.1);
         }
 
-        .hotspot::after {
-            content: attr(data-label);
+        /* Embedded Carousel Containers (Right Side Papers) */
+        .embedded-carousel {
             position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            background: rgba(244, 241, 234, 0.95); 
-            color: #0A192F; 
-            padding: 8px 16px;
-            border: 1px solid #0A192F; 
-            border-radius: 4px;
-            font-family: 'Playfair Display', serif;
-            font-size: 1rem;
-            white-space: nowrap;
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            /* Debug border: uncomment next line to see carousel boundaries */
+            /* border: 2px solid rgba(0, 0, 255, 0.5); background: rgba(0, 0, 255, 0.1); */
+        }
+
+        /* Polaroid styling for Our Moments */
+        .polaroid {
+            background: white;
+            padding: 4% 4% 12% 4%; /* Thick bottom border for polaroid look */
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
+            width: 90%;
+            height: 90%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: rotate(-2deg); /* Slight natural tilt */
+            transition: opacity 0.3s ease;
+        }
+        .polaroid img, .polaroid video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Ensures media fills the square without stretching */
+            filter: sepia(0.2) contrast(1.1); /* Slight vintage filter */
+        }
+
+        /* Handwritten Message styling for Our Messages */
+        .message-note {
+            font-family: 'Caveat', cursive;
+            color: #2a2626;
+            font-size: clamp(1.2rem, 2vw, 2.5rem); /* Scales naturally with the frame */
+            text-align: center;
+            line-height: 1.3;
+            width: 90%;
+            transform: rotate(1deg);
+            transition: opacity 0.3s ease;
+            text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
+        }
+
+        /* Carousel Navigation Buttons */
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #2a2626;
             opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease;
+            z-index: 20;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-
-        .hotspot:hover::after {
+        .embedded-carousel:hover .carousel-nav {
             opacity: 1;
-            transform: translateX(-50%) translateY(0);
         }
+        .nav-prev { left: 2px; }
+        .nav-next { right: 2px; }
 
+        /* Modal Overlays (From previous build) */
         .modal-overlay {
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        
         .modal-overlay.active {
             opacity: 1;
             visibility: visible;
         }
-
-        .media-fade {
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.98); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0A192F; }
-        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 sm:p-8">
+<body class="p-2 sm:p-8">
 
     <!-- MAIN DISPLAY CONTAINER -->
-    <main id="mainframe" class="relative w-full max-w-[1400px] mx-auto shadow-2xl overflow-hidden rounded-sm">
+    <main id="mainframe" class="relative w-full max-w-[1400px] mx-auto shadow-2xl overflow-hidden rounded-sm bg-[#e4d5b7]">
         
-        <img src="Gemini_Generated_Image_nnra02nnra02nnra.jpg" 
-             alt="Commemorative Ship Photo Frame" 
+        <!-- Base Scrapbook Image -->
+        <img src="Gemini_Generated_Image_nnra02nnra02nnra_2.jpg" 
+             alt="Scrapbook Ship Photo Frame" 
              class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
+        <!-- ==========================================
+             LEFT SIDE HOTSPOTS (Click to open Modal)
+             ========================================== -->
+             
+        <!-- Our Story Label -->
         <div class="hotspot" 
-             style="top: 12%; left: 30%; width: 40%; height: 74%;" 
-             data-label="View 55 Crew Memories"
-             onclick="openGallery('crew55')"
-             title="Click to view 55 Crew memories">
+             style="top: 13%; left: 5%; width: 22%; height: 13%;" 
+             onclick="openModal('story')"
+             title="Read Our Story">
         </div>
 
+        <!-- Our Awards Label -->
         <div class="hotspot" 
-             style="top: 70%; left: 5%; width: 33%; height: 21%;" 
-             data-label="View Wild Wild Wet Gallery"
-             onclick="openGallery('wildwildwet')"
-             title="Click to view Wild Wild Wet memories">
+             style="top: 38%; left: 6%; width: 22%; height: 21%;" 
+             onclick="openModal('awards')"
+             title="View Our Awards">
         </div>
 
+        <!-- Our Crew Label -->
         <div class="hotspot" 
-             style="top: 15%; left: 75%; width: 20%; height: 18%;" 
-             data-label="Commissioning Anniversary"
-             onclick="openGallery('anniversary')"
-             title="Click to view Commissioning Anniversary">
+             style="top: 71%; left: 5%; width: 25%; height: 16%;" 
+             onclick="openModal('crew')"
+             title="Meet Our Crew">
+        </div>
+
+        <!-- ==========================================
+             RIGHT SIDE EMBEDDED CAROUSELS (Swipeable)
+             ========================================== -->
+             
+        <!-- Our Moments (Polaroid Space) -->
+        <!-- Positioned strictly within the borders of the top-right paper note -->
+        <div id="moments-carousel" class="embedded-carousel" style="top: 23%; left: 69%; width: 24%; height: 25%;">
+            <!-- Navigation Arrows (visible on hover) -->
+            <div class="carousel-nav nav-prev" onclick="changeMoment(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
+            <div class="carousel-nav nav-next" onclick="changeMoment(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
+            
+            <!-- Dynamic Content Injector -->
+            <div id="moments-content" class="w-full h-full flex items-center justify-center">
+                <!-- Polaroid renders here -->
+            </div>
+        </div>
+
+        <!-- Our Messages (Text Space) -->
+        <!-- Positioned strictly within the borders of the bottom-right paper note -->
+        <div id="messages-carousel" class="embedded-carousel" style="top: 67%; left: 70%; width: 22%; height: 20%;">
+            <!-- Navigation Arrows (visible on hover) -->
+            <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
+            <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
+            
+            <!-- Dynamic Content Injector -->
+            <div id="messages-content" class="w-full h-full flex items-center justify-center">
+                <!-- Message renders here -->
+            </div>
+        </div>
+
+        <!-- ==========================================
+             MODAL / LIGHTBOX (For Left-Side Hotspots)
+             ========================================== -->
+        <!-- Fixed inset-0 ensures full screen, bg-black/60 dims the scrapbook slightly -->
+        <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
+            
+            <!-- Modal Content Wrapper (Anti-Zoom applied here) -->
+            <div id="modal-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
+                
+                <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
+                    <div class="flex flex-col">
+                        <p class="text-ink/60 text-[10px] sm:text-xs tracking-[0.3em] font-sans font-medium uppercase mb-1">
+                            We Stand Our Watch
+                        </p>
+                        <h2 id="modal-title" class="font-serif text-xl sm:text-3xl font-bold text-ink m-0">
+                            Modal Title
+                        </h2>
+                    </div>
+                    
+                    <button onclick="closeModal()" class="text-ink/50 hover:text-ink hover:bg-ink/5 transition-colors w-10 h-10 flex justify-center items-center rounded-full text-xl focus:outline-none">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </header>
+
+                <div id="modal-body" class="flex-1 overflow-y-auto p-4 sm:p-8 bg-parchment text-ink font-serif text-lg leading-relaxed">
+                    <!-- Modal text/images injected here -->
+                </div>
+            </div>
         </div>
     </main>
 
-    <!-- MODAL / LIGHTBOX -->
-    <!-- Fixed inset-0 ensures it spans the entire device screen, solving the mobile cropping issue -->
-    <!-- bg-navy/50 keeps the ship frame slightly visible in the background -->
-    <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-navy/50 p-2 sm:p-6">
-        
-        <!-- Modal Content Container -->
-        <!-- ID added so JS can dynamically adjust its scale when the user is zoomed in -->
-        <div id="modal-content-wrapper" class="bg-parchment border border-navy/30 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.4)] w-[95%] max-w-5xl h-[85vh] sm:h-[90vh] flex flex-col relative overflow-hidden origin-center">
-            
-            <header class="flex justify-between items-center p-4 sm:p-6 border-b border-navy/10 bg-white/40 shrink-0">
-                <div class="flex flex-col">
-                    <p class="text-navy/70 text-[10px] sm:text-xs tracking-[0.3em] font-sans font-medium uppercase mb-1">
-                        We Stand Our Watch
-                    </p>
-                    <h2 id="modal-title" class="font-serif text-xl sm:text-3xl font-bold text-navy m-0 drop-shadow-sm">
-                        Gallery Title
-                    </h2>
-                </div>
-                
-                <button onclick="closeGallery()" class="text-navy/60 hover:text-navy hover:bg-navy/10 transition-colors w-10 h-10 flex justify-center items-center rounded-full text-xl focus:outline-none" title="Close">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </header>
-
-            <div class="flex-1 relative flex items-center justify-center bg-transparent overflow-hidden group">
-                
-                <button onclick="prevMedia()" class="absolute left-2 sm:left-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all text-lg opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none shadow-md">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-
-                <!-- Added overflow-hidden to ensure large images never stretch the box -->
-                <div id="media-container" class="w-full h-full flex items-center justify-center p-3 sm:p-6 relative z-10 overflow-hidden">
-                    <!-- Image or Video injected here by JS -->
-                </div>
-
-                <button onclick="nextMedia()" class="absolute right-2 sm:right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-white/90 border border-navy/20 text-navy hover:bg-navy hover:text-white transition-all text-lg opacity-0 group-hover:opacity-100 focus:opacity-100 focus:outline-none shadow-md">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            </div>
-
-            <footer class="p-3 sm:p-5 border-t border-navy/10 bg-white/40 shrink-0 text-center flex flex-col items-center justify-center">
-                <p id="media-caption" class="text-navy font-sans text-sm sm:text-base min-h-[1.5rem] max-w-3xl mx-auto font-medium">
-                    <!-- Caption injected via JS -->
-                </p>
-                <div id="media-indicators" class="flex gap-2 mt-3">
-                    <!-- Dots injected via JS -->
-                </div>
-            </footer>
-        </div>
-    </div>
-
     <script>
-        const galleryData = {
-            'crew55': {
-                title: "55 Crew",
-                items: [
-                    {
-                        type: 'image',
-                        src: 'https://placehold.co/1200x800/112240/D4AF37?text=Crew+Formation+Photo',
-                        caption: 'The whole team standing watch. A memory to last a lifetime.'
-                    },
-                    {
-                        type: 'video',
-                        src: 'https://www.w3schools.com/html/mov_bbb.mp4', 
-                        caption: 'Farewell message from the Commander.'
-                    },
-                    {
-                        type: 'image',
-                        src: 'https://placehold.co/800x1200/112240/D4AF37?text=Autographed+Message+Card',
-                        caption: '"Fair winds and following seas" - From the Engineering Department.'
-                    }
-                ]
+        // ==========================================
+        // DATA STRUCTURES
+        // ==========================================
+
+        // Data for Left-Side Modals
+        const modalData = {
+            'story': {
+                title: "Our Story",
+                content: `<p class="mb-4">From our very first commissioning to our final patrol, the 55 Crew has weathered every storm together. We stood our watch through countless days and nights, forging an unbreakable bond.</p>
+                          <img src="https://placehold.co/800x400/2a2626/f4f1ea?text=Historical+Ship+Photo" class="w-full h-auto rounded shadow-md border border-ink/20 mb-4" alt="Historical photo">
+                          <p>This ship was more than steel and engines; it was our home away from home.</p>`
             },
-            'wildwildwet': {
-                title: "Wild Wild Wet Outing",
-                items: [
-                    {
-                        type: 'image',
-                        src: 'https://i.ibb.co/G4Q6fvCw/image.png',
-                        caption: 'Before the madness began! Team bonding outside the ship.'
-                    },
-                    {
-                        type: 'image',
-                        src: 'https://placehold.co/1200x800/0284c7/ffffff?text=Wave+Pool+Fun',
-                        caption: 'Taking over the wave pool and enjoying the sun.'
-                    },
-                    {
-                        type: 'video',
-                        src: 'https://www.w3schools.com/html/mov_bbb.mp4',
-                        caption: 'Racing down the water slides!'
-                    }
-                ]
+            'awards': {
+                title: "Our Awards",
+                content: `<ul class="list-disc pl-6 space-y-4">
+                            <li><strong>Best Fleet Unit (2023)</strong> - Recognized for outstanding operational readiness.</li>
+                            <li><strong>Excellence in Navigation</strong> - For zero safety incidents during our longest deployment.</li>
+                            <li><strong>Commendation of Service</strong> - Awarded during the joint regional maritime exercises.</li>
+                          </ul>`
             },
-            'anniversary': {
-                title: "Commissioning Anniversary",
-                items: [
-                    {
-                        type: 'image',
-                        src: 'https://placehold.co/1200x800/eeeeee/0A192F?text=Anniversary+Cake',
-                        caption: 'Celebrating our first milestone together.'
-                    },
-                    {
-                        type: 'image',
-                        src: 'https://placehold.co/1200x800/eeeeee/0A192F?text=Ship+Tour+for+Families',
-                        caption: 'Showing our loved ones where we stand our watch.'
-                    }
-                ]
+            'crew': {
+                title: "Meet Our Crew",
+                content: `<p class="mb-4">The heart of this vessel is the men and women who served aboard her.</p>
+                          <img src="https://placehold.co/800x500/2a2626/f4f1ea?text=Full+Crew+Roster" class="w-full h-auto rounded shadow-md border border-ink/20" alt="Crew roster">`
             }
         };
 
-        let currentGalleryKey = null;
-        let currentIndex = 0;
+        // Data for Right-Side Carousels (Our Moments & Our Messages)
+        const momentsData = [
+            { type: 'image', src: 'https://placehold.co/400x400/1a293b/e4d5b7?text=Moment+1' },
+            { type: 'image', src: 'https://placehold.co/400x400/603e2e/e4d5b7?text=Moment+2' },
+            { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4' }
+        ];
+
+        const messagesData = [
+            `"Fair winds and following seas to the best crew I've ever served with." - CPT Tan`,
+            `"We stood our watch, and we did it well. I'll miss this old ship." - ME2 Pillay`,
+            `"To the engineers who kept us afloat, thank you." - LTA Wong`
+        ];
+
+        // ==========================================
+        // EMBEDDED CAROUSEL LOGIC & SWIPE HANDLING
+        // ==========================================
+        
+        let currentMoment = 0;
+        let currentMessage = 0;
+
+        function renderMoment() {
+            const container = document.getElementById('moments-content');
+            const data = momentsData[currentMoment];
+            
+            // Apply quick fade out/in effect
+            container.style.opacity = 0;
+            
+            setTimeout(() => {
+                let mediaHtml = '';
+                if (data.type === 'image') {
+                    mediaHtml = `<img src="${data.src}" alt="Crew Moment">`;
+                } else if (data.type === 'video') {
+                    mediaHtml = `<video src="${data.src}" autoplay loop muted playsinline></video>`;
+                }
+                
+                // Wrap in polaroid div
+                container.innerHTML = `<div class="polaroid">${mediaHtml}</div>`;
+                container.style.opacity = 1;
+            }, 150); // wait for fade out
+        }
+
+        function renderMessage() {
+            const container = document.getElementById('messages-content');
+            const text = messagesData[currentMessage];
+            
+            container.style.opacity = 0;
+            setTimeout(() => {
+                container.innerHTML = `<div class="message-note">${text}</div>`;
+                container.style.opacity = 1;
+            }, 150);
+        }
+
+        function changeMoment(dir) {
+            currentMoment += dir;
+            if (currentMoment >= momentsData.length) currentMoment = 0;
+            if (currentMoment < 0) currentMoment = momentsData.length - 1;
+            renderMoment();
+        }
+
+        function changeMessage(dir) {
+            currentMessage += dir;
+            if (currentMessage >= messagesData.length) currentMessage = 0;
+            if (currentMessage < 0) currentMessage = messagesData.length - 1;
+            renderMessage();
+        }
+
+        // Initialize Carousels on load
+        renderMoment();
+        renderMessage();
+
+        // Add Swipe Event Listeners to Carousels
+        function addSwipeListener(elementId, callbackPrev, callbackNext) {
+            const el = document.getElementById(elementId);
+            let touchstartX = 0;
+            let touchendX = 0;
+
+            el.addEventListener('touchstart', e => {
+                touchstartX = e.changedTouches[0].screenX;
+            }, {passive: true});
+
+            el.addEventListener('touchend', e => {
+                touchendX = e.changedTouches[0].screenX;
+                handleSwipe();
+            }, {passive: true});
+
+            function handleSwipe() {
+                const threshold = 30; // Minimum pixel swipe distance
+                if (touchendX < touchstartX - threshold) callbackNext(); // Swiped left
+                if (touchendX > touchstartX + threshold) callbackPrev(); // Swiped right
+            }
+        }
+
+        addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
+        addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
+
+
+        // ==========================================
+        // MODAL LOGIC & VISUAL VIEWPORT SYNC (Anti-Zoom)
+        // ==========================================
 
         const modal = document.getElementById('gallery-modal');
         const modalContent = document.getElementById('modal-content-wrapper');
-        const modalTitle = document.getElementById('modal-title');
-        const mediaContainer = document.getElementById('media-container');
-        const mediaCaption = document.getElementById('media-caption');
-        const mediaIndicators = document.getElementById('media-indicators');
 
-        /**
-         * VISUAL VIEWPORT SYNC
-         * This dynamically counter-scales and centers the modal if the user is zoomed in.
-         * If they are zoomed 2x, it scales the modal by 0.5x so it remains perfectly readable!
-         */
         function syncVisualViewport() {
             if (!modal.classList.contains('active') || !window.visualViewport) return;
             
@@ -278,29 +386,25 @@
             const tx = visualCenterX - layoutCenterX;
             const ty = visualCenterY - layoutCenterY;
             
+            // Counter-scale the modal so it appears 1x to the user
             modalContent.style.transform = `translate(${tx}px, ${ty}px) scale(${1 / scale})`;
         }
 
-        // Attach viewport listeners to keep it synced while scrolling/zooming
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', syncVisualViewport);
             window.visualViewport.addEventListener('scroll', syncVisualViewport);
         }
 
-        function openGallery(galleryKey) {
-            if (!galleryData[galleryKey]) return;
-            
-            currentGalleryKey = galleryKey;
-            currentIndex = 0; 
-            modalTitle.textContent = galleryData[currentGalleryKey].title;
-            
-            renderCurrentMedia();
-            
-            // Lock body scrolling
+        function openModal(key) {
+            const data = modalData[key];
+            if (!data) return;
+
+            document.getElementById('modal-title').innerText = data.title;
+            document.getElementById('modal-body').innerHTML = data.content;
+
             document.body.classList.add('modal-open');
             modal.classList.add('active');
-            
-            // Apply anti-zoom math instantly
+
             if (window.visualViewport) {
                 syncVisualViewport();
             } else {
@@ -308,103 +412,28 @@
             }
         }
 
-        function closeGallery() {
+        function closeModal() {
             modal.classList.remove('active');
             document.body.classList.remove('modal-open');
-            
-            // Reset transforms
             modalContent.style.transform = 'translate(0, 0) scale(1)';
             
+            // Clear content after animation
             setTimeout(() => {
-                mediaContainer.innerHTML = '';
-                currentGalleryKey = null;
+                document.getElementById('modal-body').innerHTML = '';
             }, 300);
-        }
-
-        function renderCurrentMedia() {
-            const gallery = galleryData[currentGalleryKey];
-            const item = gallery.items[currentIndex];
-            
-            mediaContainer.innerHTML = '';
-            
-            // Added max-w-full and max-h-full constraints to prevent blowout
-            const polaroidWrapper = document.createElement('div');
-            polaroidWrapper.className = 'media-fade bg-white p-2 sm:p-4 shadow-[0_15px_35px_rgba(10,25,47,0.15)] rounded-sm border border-gray-200 flex flex-col items-center justify-center max-w-full max-h-full overflow-hidden';
-            
-            if (item.type === 'image') {
-                const img = document.createElement('img');
-                img.src = item.src;
-                img.alt = item.caption || 'Gallery Image';
-                // object-contain inside max constraints ensures it scales beautifully
-                img.className = 'w-auto h-auto max-w-full max-h-[50vh] sm:max-h-[60vh] object-contain';
-                polaroidWrapper.appendChild(img);
-            } 
-            else if (item.type === 'video') {
-                const video = document.createElement('video');
-                video.src = item.src;
-                video.controls = true;
-                video.autoplay = true; 
-                video.className = 'w-auto h-auto max-w-full max-h-[50vh] sm:max-h-[60vh] object-contain bg-black rounded-sm border border-gray-300';
-                polaroidWrapper.appendChild(video);
-            }
-            
-            mediaContainer.appendChild(polaroidWrapper);
-            mediaCaption.textContent = item.caption || '';
-            updateIndicators(gallery.items.length);
-        }
-
-        function updateIndicators(totalItems) {
-            mediaIndicators.innerHTML = ''; 
-            for (let i = 0; i < totalItems; i++) {
-                const dot = document.createElement('button');
-                dot.className = `w-2 h-2 rounded-full transition-all duration-300 ${i === currentIndex ? 'bg-navy w-6' : 'bg-navy/20 hover:bg-navy/50'}`;
-                dot.onclick = () => {
-                    currentIndex = i;
-                    renderCurrentMedia();
-                };
-                mediaIndicators.appendChild(dot);
-            }
-        }
-
-        function nextMedia() {
-            if (!currentGalleryKey) return;
-            const gallery = galleryData[currentGalleryKey];
-            
-            currentIndex++;
-            if (currentIndex >= gallery.items.length) {
-                currentIndex = 0; 
-            }
-            renderCurrentMedia();
-        }
-
-        function prevMedia() {
-            if (!currentGalleryKey) return;
-            const gallery = galleryData[currentGalleryKey];
-            
-            currentIndex--;
-            if (currentIndex < 0) {
-                currentIndex = gallery.items.length - 1; 
-            }
-            renderCurrentMedia();
         }
 
         // Close when clicking the dark overlay backdrop
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
-                closeGallery();
+                closeModal();
             }
         });
 
-        // Keyboard navigation
+        // Close on Escape key
         document.addEventListener('keydown', function(e) {
-            if (!modal.classList.contains('active')) return;
-            
-            if (e.key === 'Escape') {
-                closeGallery();
-            } else if (e.key === 'ArrowRight') {
-                nextMedia();
-            } else if (e.key === 'ArrowLeft') {
-                prevMedia();
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                closeModal();
             }
         });
     </script>
