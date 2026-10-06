@@ -5,25 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>We Stand Our Watch - 55 Crew Scrapbook</title>
     
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts: Playfair Display & Caveat (for handwritten notes) -->
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        ink: '#2a2626',      
-                        sepia: '#e4d5b7',    
-                        navy: '#1a293b',     
-                        parchment: '#f4f1ea' 
-                    },
+                    colors: { ink: '#2a2626', sepia: '#e4d5b7', navy: '#1a293b', parchment: '#f4f1ea' },
                     fontFamily: {
                         serif: ['"Playfair Display"', 'serif'],
                         handwritten: ['Caveat', 'cursive'],
@@ -35,182 +25,66 @@
     </script>
 
     <style>
-        body {
-            background-color: #1a1a1a; 
-            overflow-x: hidden;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        body.modal-open {
-            overflow: hidden;
-        }
+        body { background-color: #1a1a1a; overflow-x: hidden; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body.modal-open { overflow: hidden; }
 
-        .hotspot {
-            position: absolute;
-            cursor: pointer;
-            z-index: 10;
-            border-radius: 8px;
-        }
+        .hotspot { position: absolute; cursor: pointer; z-index: 10; border-radius: 8px; }
+        .hotspot:hover { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.1); backdrop-filter: brightness(1.1); }
+        .embedded-carousel { position: absolute; z-index: 5; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 
-        .hotspot:hover {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: brightness(1.1);
-        }
-
-        .embedded-carousel {
-            position: absolute;
-            z-index: 5;
-            overflow: hidden;
-            /* Debug tool: uncomment next line to see the strict container boundaries */
-            /* border: 1px solid red; */
-        }
-
-        /* -------------------------------------
-           FIXED "INVISIBLE POLAROID" STYLING
-        -------------------------------------- */
-        
-        .fixed-wrapper {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center; /* Centers content perfectly in the blank space */
-            overflow: hidden; /* Prevents absolutely any bleeding out of the note */
-            transition: opacity 0.3s ease;
-        }
-
-        .fixed-media {
-            flex: 1; /* Tells the image to take all available space */
-            min-height: 0; /* CRITICAL: Allows image to shrink below its natural height so it doesn't push text out */
-            max-width: 95%; /* Leaves a tiny breathing margin on the sides */
-            object-fit: contain; 
-            mix-blend-mode: multiply;
-            filter: sepia(0.3) contrast(1.1) brightness(0.95); 
-            border-radius: 2px;
-            box-shadow: 2px 3px 8px rgba(0,0,0,0.1);
-        }
-        
+        .fixed-wrapper { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.3s ease; }
+        .fixed-media { flex: 1; min-height: 0; max-width: 95%; object-fit: contain; mix-blend-mode: multiply; filter: sepia(0.3) contrast(1.1) brightness(0.95); border-radius: 2px; box-shadow: 2px 3px 8px rgba(0,0,0,0.1); }
         .tilt-left { transform: rotate(-1deg); }
         .tilt-right { transform: rotate(1deg); }
 
-        .fixed-caption {
-            flex-shrink: 0; /* CRITICAL: Protects the text from being squished by the image */
-            margin-top: 4px;
-            width: 100%;
-            text-align: center;
-            font-family: 'Caveat', cursive;
-            color: #2a2626;
-            line-height: 1.1;
-            /* Viewport-relative font sizing (vw) perfectly scales with the responsive scrapbook image */
-            font-size: clamp(0.7rem, 1.4vw, 1.4rem);
-            text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
-            
-            /* Strict 2-line maximum */
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        .fixed-caption { flex-shrink: 0; margin-top: 4px; width: 100%; text-align: center; font-family: 'Caveat', cursive; color: #2a2626; line-height: 1.1; font-size: clamp(0.7rem, 1.4vw, 1.4rem); text-shadow: 0px 0px 1px rgba(0,0,0,0.1); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .text-only-message { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: 'Caveat', cursive; color: #2a2626; text-align: center; line-height: 1.2; font-size: clamp(0.9rem, 1.8vw, 1.8rem); text-shadow: 0px 0px 1px rgba(0,0,0,0.1); overflow: hidden; transition: opacity 0.3s ease; }
 
-        .text-only-message {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Caveat', cursive;
-            color: #2a2626;
-            text-align: center;
-            line-height: 1.2;
-            font-size: clamp(0.9rem, 1.8vw, 1.8rem);
-            text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
-            overflow: hidden;
-            transition: opacity 0.3s ease;
-        }
-
-        .carousel-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.4);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: #2a2626;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 20;
-        }
-        .embedded-carousel:hover .carousel-nav {
-            opacity: 1;
-        }
+        .carousel-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.4); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #2a2626; opacity: 0; transition: opacity 0.3s ease; z-index: 20; }
+        .embedded-carousel:hover .carousel-nav { opacity: 1; }
         .nav-prev { left: 2px; }
         .nav-next { right: 2px; }
 
-        .modal-overlay {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-overlay { opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .loading-text { font-family: 'Caveat', cursive; color: #2a2626; font-size: clamp(1rem, 1.5vw, 1.5rem); animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body class="p-2 sm:p-8">
 
     <main id="mainframe" class="relative w-full max-w-[1400px] mx-auto shadow-2xl overflow-hidden rounded-sm bg-[#e4d5b7]">
-        
-        <img src="55%20Frame.jpg" 
-             alt="Scrapbook Ship Photo Frame" 
-             class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+        <img src="55%20Frame.jpg" alt="Scrapbook Ship Photo Frame" class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
-        <!-- Left Side Informational Hotspots -->
         <div class="hotspot" style="top: 13%; left: 5%; width: 22%; height: 13%;" onclick="openModal('story')" title="Read Our Story"></div>
         <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openModal('awards')" title="View Our Awards"></div>
         <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openModal('crew')" title="Meet Our Crew"></div>
-
-        <!-- Header Hotspots (Clickable Labels for Full Galleries) -->
         <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openGalleryModal('moments')" title="View All Moments"></div>
         <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openGalleryModal('messages')" title="View All Messages"></div>
 
-        <!-- 
-          Moments Carousel Bound Box
-          Exactly maps the blank space under "Our Moments"
-        -->
         <div id="moments-carousel" class="embedded-carousel" style="top: 24%; left: 71.5%; width: 22%; height: 23%;">
             <div class="carousel-nav nav-prev" onclick="changeMoment(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMoment(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
-            <div id="moments-content" class="w-full h-full"></div>
+            <div id="moments-content" class="w-full h-full flex items-center justify-center">
+                <div class="loading-text">Loading...</div>
+            </div>
         </div>
 
-        <!-- 
-          Messages Carousel Bound Box
-          Exactly maps the blank space under "Our Messages"
-        -->
         <div id="messages-carousel" class="embedded-carousel" style="top: 64.5%; left: 71.5%; width: 22%; height: 18%;">
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
-            <div id="messages-content" class="w-full h-full"></div>
+            <div id="messages-content" class="w-full h-full flex items-center justify-center">
+                <div class="loading-text">Syncing DB...</div>
+            </div>
         </div>
 
-        <!-- Global Lightbox Modal -->
         <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
             <div id="modal-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-5xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
                 <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
                     <div class="flex flex-col">
                         <p class="text-ink/60 text-[10px] sm:text-xs tracking-[0.3em] font-sans font-medium uppercase mb-1">We Stand Our Watch</p>
-                        <h2 id="modal-title" class="font-serif text-xl sm:text-3xl font-bold text-ink m-0">Modal Title</h2>
+                        <h2 id="modal-title" class="font-serif text-xl sm:text-3xl font-bold text-ink m-0">Loading...</h2>
                     </div>
                     <button onclick="closeModal()" class="text-ink/50 hover:text-ink hover:bg-ink/5 transition-colors w-10 h-10 flex justify-center items-center rounded-full text-xl focus:outline-none">
                         <i class="fa-solid fa-xmark"></i>
@@ -222,89 +96,116 @@
     </main>
 
     <script>
-        const modalData = {
-            'story': {
-                title: "Our Story",
-                content: `<p class="mb-4">From our very first commissioning to our final patrol, the 55 Crew has weathered every storm together. We stood our watch through countless days and nights, forging an unbreakable bond.</p>
-                          <img src="https://placehold.co/800x400/2a2626/f4f1ea?text=Historical+Ship+Photo" class="w-full h-auto rounded shadow-md border border-ink/20 mb-4" alt="Historical photo">
-                          <p>This ship was more than steel and engines; it was our home away from home.</p>`
-            },
-            'awards': {
-                title: "Our Awards",
-                content: `<ul class="list-disc pl-6 space-y-4">
-                            <li><strong>Best Fleet Unit (2023)</strong> - Recognized for outstanding operational readiness.</li>
-                            <li><strong>Excellence in Navigation</strong> - For zero safety incidents during our longest deployment.</li>
-                            <li><strong>Commendation of Service</strong> - Awarded during the joint regional maritime exercises.</li>
-                          </ul>`
-            },
-            'crew': {
-                title: "Meet Our Crew",
-                content: `<p class="mb-4">The heart of this vessel is the men and women who served aboard her.</p>
-                          <img src="https://placehold.co/800x500/2a2626/f4f1ea?text=Full+Crew+Roster" class="w-full h-auto rounded shadow-md border border-ink/20" alt="Crew roster">`
-            }
+        // PASTE YOUR NEW APPS SCRIPT DEPLOYMENT URL HERE
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygvkuti5gfBd4C3lk66ROyIEOCA86Tk6V7BvcAqVLZvyz2G1bWDNJyQQWjFZ9IuNWO/exec"; 
+
+        // Empty Data Structures (Populated by Google Sheets)
+        let modalData = {
+            'story': { title: "Our Story", content: "" },
+            'awards': { title: "Our Awards", content: "" },
+            'crew': { title: "Meet Our Crew", content: "" }
         };
-
-        const momentsData = [
-            { type: 'image', src: 'https://placehold.co/400x400/1a293b/e4d5b7?text=Moment+1', caption: 'The whole team standing watch.' },
-            { type: 'image', src: 'https://placehold.co/400x400/603e2e/e4d5b7?text=Moment+2', caption: 'Before the madness began! It was a great day with the crew.' },
-            { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Racing down the water slides at Wild Wild Wet!' }
-        ];
-
-        const messagesData = [
-            { type: 'text', content: `"Fair winds and following seas to the best crew I've ever served with." - CPT Tan` },
-            { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Farewell from the Engineers - LTA Wong' },
-            { type: 'text', content: `"We stood our watch, and we did it well. I'll miss this old ship." - ME2 Pillay` }
-        ];
+        let momentsData = [];
+        let messagesData = [];
         
         let currentMoment = 0;
         let currentMessage = 0;
 
+        // FETCH DATA FROM GOOGLE SHEETS
+        async function fetchScrapbookData() {
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const rawData = await response.json();
+                
+                rawData.forEach(row => {
+                    const category = row.Category ? row.Category.toLowerCase().trim() : '';
+                    const type = row.Media_Type ? row.Media_Type.toLowerCase().trim() : 'text';
+                    
+                    // Parse Moments
+                    if (category === 'moments') {
+                        momentsData.push({ type: type, src: row.Media_URL, caption: row.Content });
+                    } 
+                    // Parse Messages
+                    else if (category === 'messages') {
+                        let formattedCaption = row.Author_or_Title ? `${row.Content} - ${row.Author_or_Title}` : row.Content;
+                        messagesData.push({ type: type, src: row.Media_URL, content: formattedCaption, caption: formattedCaption });
+                    } 
+                    // Parse Modals (Story, Awards, Crew)
+                    else if (['story', 'awards', 'crew'].includes(category)) {
+                        if (row.Author_or_Title) modalData[category].title = row.Author_or_Title;
+                        
+                        if (type === 'image') {
+                            modalData[category].content += `<img src="${row.Media_URL}" class="w-full h-auto rounded shadow-md border border-ink/20 mb-4 bg-[#fbf8f1] object-contain">`;
+                        } else if (type === 'video') {
+                            modalData[category].content += `<video src="${row.Media_URL}" controls class="w-full h-auto rounded shadow-md border border-ink/20 mb-4 bg-black"></video>`;
+                        } else {
+                            modalData[category].content += `<div class="mb-4">${row.Content}</div>`;
+                        }
+                    }
+                });
+
+                // Fallbacks in case sheet is completely empty
+                if (momentsData.length === 0) momentsData = [{type: 'text', caption: 'Update Google Sheet to add moments!'}];
+                if (messagesData.length === 0) messagesData = [{type: 'text', content: 'Update Google Sheet to add messages!'}];
+
+                // Render Initial Content
+                renderMoment();
+                renderMessage();
+
+            } catch (error) {
+                console.error("Database connection failed:", error);
+                document.getElementById('moments-content').innerHTML = '<div class="text-only-message tilt-left">Database Error</div>';
+                document.getElementById('messages-content').innerHTML = '<div class="text-only-message tilt-right">Database Error</div>';
+            }
+        }
+
+        // Initialize Fetch on Page Load
+        window.onload = fetchScrapbookData;
+
         // ----------------------------------------------------
-        // Lightweight Flexbox Carousel Rendering (No JS Resizing)
+        // Carousel Rendering Logic
         // ----------------------------------------------------
 
         function renderMoment() {
+            if(momentsData.length === 0) return;
             const container = document.getElementById('moments-content');
             const data = momentsData[currentMoment];
             
             container.style.opacity = 0;
             setTimeout(() => {
-                let mediaHtml = data.type === 'video' 
-                    ? `<video src="${data.src}" class="fixed-media tilt-left" autoplay loop muted playsinline></video>`
-                    : `<img src="${data.src}" class="fixed-media tilt-left" alt="Crew Moment">`;
-                
-                let captionHtml = data.caption ? `<div class="fixed-caption tilt-left">${data.caption}</div>` : '';
-                
-                container.innerHTML = `<div class="fixed-wrapper">${mediaHtml}${captionHtml}</div>`;
+                if (data.type === 'text') {
+                    container.innerHTML = `<div class="text-only-message tilt-left">${data.caption}</div>`;
+                } else {
+                    let mediaHtml = data.type === 'video' 
+                        ? `<video src="${data.src}" class="fixed-media tilt-left" autoplay loop muted playsinline></video>`
+                        : `<img src="${data.src}" class="fixed-media tilt-left" alt="Crew Moment">`;
+                    let captionHtml = data.caption ? `<div class="fixed-caption tilt-left">${data.caption}</div>` : '';
+                    container.innerHTML = `<div class="fixed-wrapper">${mediaHtml}${captionHtml}</div>`;
+                }
                 container.style.opacity = 1;
             }, 150); 
         }
 
         function renderMessage() {
+            if(messagesData.length === 0) return;
             const container = document.getElementById('messages-content');
             const data = messagesData[currentMessage];
             
             container.style.opacity = 0;
             setTimeout(() => {
-                
                 if (data.type === 'text') {
                     container.innerHTML = `<div class="text-only-message tilt-right">${data.content}</div>`;
-                    container.style.opacity = 1;
-                } 
-                else if (data.type === 'video' || data.type === 'image') {
+                } else {
                     let mediaHtml = data.type === 'video' 
                         ? `<video src="${data.src}" class="fixed-media tilt-right" autoplay loop muted playsinline></video>`
                         : `<img src="${data.src}" class="fixed-media tilt-right" alt="Crew Message">`;
-                    
                     let captionHtml = data.caption ? `<div class="fixed-caption tilt-right">${data.caption}</div>` : '';
-                    
                     container.innerHTML = `<div class="fixed-wrapper">${mediaHtml}${captionHtml}</div>`;
-                    container.style.opacity = 1;
                 }
+                container.style.opacity = 1;
             }, 150);
         }
 
-        // Navigation Functions
         function changeMoment(dir) {
             currentMoment += dir;
             if (currentMoment >= momentsData.length) currentMoment = 0;
@@ -319,15 +220,9 @@
             renderMessage();
         }
 
-        renderMoment();
-        renderMessage();
-
-        // Swipe Functionality
         function addSwipeListener(elementId, callbackPrev, callbackNext) {
             const el = document.getElementById(elementId);
-            let touchstartX = 0;
-            let touchendX = 0;
-
+            let touchstartX = 0; let touchendX = 0;
             el.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
             el.addEventListener('touchend', e => {
                 touchendX = e.changedTouches[0].screenX;
@@ -338,63 +233,41 @@
         addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
         addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
 
-
         // ----------------------------------------------------
-        // Dynamic Grid Gallery Modals (For Header Clicks)
+        // Modals
         // ----------------------------------------------------
 
         function openGalleryModal(type) {
             let title = '';
             let htmlContent = '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
+            let dataset = type === 'moments' ? momentsData : messagesData;
+            title = type === 'moments' ? "All Our Moments" : "All Our Messages";
 
-            if (type === 'moments') {
-                title = "All Our Moments";
-                momentsData.forEach(item => {
+            dataset.forEach(item => {
+                if (item.type === 'text') {
+                    htmlContent += `
+                        <div class="flex flex-col items-center justify-center bg-white/40 p-6 rounded shadow-sm border border-ink/5 min-h-[200px]">
+                            <p class="font-handwritten text-2xl text-ink text-center leading-tight">${item.content || item.caption}</p>
+                        </div>`;
+                } else {
                     let media = item.type === 'video' 
                         ? `<video src="${item.src}" controls class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md bg-black"></video>`
-                        : `<img src="${item.src}" class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md" alt="Moment">`;
+                        : `<img src="${item.src}" class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md" alt="Media">`;
                     htmlContent += `
                         <div class="flex flex-col items-center bg-white/40 p-3 sm:p-4 rounded shadow-sm border border-ink/5">
                             ${media}
                             <p class="mt-3 font-handwritten text-2xl text-ink text-center leading-tight">${item.caption || ''}</p>
-                        </div>
-                    `;
-                });
-            } else if (type === 'messages') {
-                title = "All Our Messages";
-                messagesData.forEach(item => {
-                    if (item.type === 'text') {
-                        htmlContent += `
-                            <div class="flex flex-col items-center justify-center bg-white/40 p-6 rounded shadow-sm border border-ink/5 min-h-[200px]">
-                                <p class="font-handwritten text-2xl text-ink text-center leading-tight">${item.content}</p>
-                            </div>
-                        `;
-                    } else {
-                        let media = item.type === 'video' 
-                            ? `<video src="${item.src}" controls class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md bg-black"></video>`
-                            : `<img src="${item.src}" class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md" alt="Message">`;
-                        htmlContent += `
-                            <div class="flex flex-col items-center bg-white/40 p-3 sm:p-4 rounded shadow-sm border border-ink/5">
-                                ${media}
-                                <p class="mt-3 font-handwritten text-2xl text-ink text-center leading-tight">${item.caption || ''}</p>
-                            </div>
-                        `;
-                    }
-                });
-            }
+                        </div>`;
+                }
+            });
             htmlContent += '</div>';
 
             document.getElementById('modal-title').innerText = title;
             document.getElementById('modal-body').innerHTML = htmlContent;
             document.body.classList.add('modal-open');
             modal.classList.add('active');
-            
             if (window.visualViewport) syncVisualViewport();
         }
-
-        // ----------------------------------------------------
-        // Base Modal Logic (Shared)
-        // ----------------------------------------------------
 
         const modal = document.getElementById('gallery-modal');
         const modalContent = document.getElementById('modal-content-wrapper');
@@ -402,15 +275,10 @@
         function syncVisualViewport() {
             if (!modal.classList.contains('active') || !window.visualViewport) return;
             const scale = window.visualViewport.scale;
-            const layoutCenterX = window.innerWidth / 2;
-            const layoutCenterY = window.innerHeight / 2;
-            const visualCenterX = window.visualViewport.offsetLeft + (window.visualViewport.width / 2);
-            const visualCenterY = window.visualViewport.offsetTop + (window.visualViewport.height / 2);
-            const tx = visualCenterX - layoutCenterX;
-            const ty = visualCenterY - layoutCenterY;
+            const tx = (window.visualViewport.offsetLeft + (window.visualViewport.width / 2)) - (window.innerWidth / 2);
+            const ty = (window.visualViewport.offsetTop + (window.visualViewport.height / 2)) - (window.innerHeight / 2);
             modalContent.style.transform = `translate(${tx}px, ${ty}px) scale(${1 / scale})`;
         }
-
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', syncVisualViewport);
             window.visualViewport.addEventListener('scroll', syncVisualViewport);
@@ -420,25 +288,18 @@
             const data = modalData[key];
             if (!data) return;
             document.getElementById('modal-title').innerText = data.title;
-            document.getElementById('modal-body').innerHTML = data.content;
+            document.getElementById('modal-body').innerHTML = data.content || '<p class="italic text-ink/60">No content added yet.</p>';
             document.body.classList.add('modal-open');
             modal.classList.add('active');
-            if (window.visualViewport) {
-                syncVisualViewport();
-            } else {
-                modalContent.style.transform = 'translate(0, 0) scale(1)';
-            }
+            if (window.visualViewport) syncVisualViewport();
         }
 
         function closeModal() {
             modal.classList.remove('active');
             document.body.classList.remove('modal-open');
             modalContent.style.transform = 'translate(0, 0) scale(1)';
-            
-            // Stop any playing videos in the grid when closed
             const videos = document.querySelectorAll('#modal-body video');
             videos.forEach(vid => vid.pause());
-
             setTimeout(() => { document.getElementById('modal-body').innerHTML = ''; }, 300);
         }
 
