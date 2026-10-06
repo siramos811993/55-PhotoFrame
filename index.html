@@ -76,13 +76,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 2%; 
             transition: opacity 0.3s ease;
         }
 
         .moment-media {
             max-width: 90%;
-            /* Restored max-height to 75% as requested */
             max-height: 75%; 
             object-fit: contain; 
             mix-blend-mode: multiply;
@@ -96,13 +96,16 @@
             font-family: 'Caveat', cursive;
             color: #2a2626;
             text-align: center;
-            /* Kept font size small to ensure it stays at the bottom */
-            font-size: clamp(0.9rem, 1.2vw, 1.3rem);
-            margin-top: 4px;
             line-height: 1.1;
-            max-width: 95%;
+            width: 95%;
+            margin-top: 6px;
             transform: rotate(-1deg);
             text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
+            
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         .message-note {
@@ -162,7 +165,11 @@
         <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openModal('awards')"></div>
         <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openModal('crew')"></div>
 
-        <div id="moments-carousel" class="embedded-carousel" style="top: 24%; left: 71.5%; width: 22%; height: 26%;">
+        <!-- 
+          Moments Container tightly constrained:
+          Height reduced to 23.5% and top shifted to 23% to physically stop rendering before the tape.
+        -->
+        <div id="moments-carousel" class="embedded-carousel" style="top: 23%; left: 71.5%; width: 22%; height: 23.5%;">
             <div class="carousel-nav nav-prev" onclick="changeMoment(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMoment(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             <div id="moments-content" class="w-full h-full flex items-center justify-center"></div>
@@ -215,8 +222,8 @@
 
         const momentsData = [
             { type: 'image', src: 'https://placehold.co/400x400/1a293b/e4d5b7?text=Moment+1', caption: 'The whole team standing watch.' },
-            { type: 'image', src: 'https://placehold.co/400x400/603e2e/e4d5b7?text=Moment+2', caption: 'Before the madness began!' },
-            { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Racing down the water slides!' }
+            { type: 'image', src: 'https://placehold.co/400x400/603e2e/e4d5b7?text=Moment+2', caption: 'Before the madness began! It was a great day with the crew.' },
+            { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Racing down the water slides at Wild Wild Wet!' }
         ];
 
         const messagesData = [
@@ -242,10 +249,25 @@
                     mediaHtml = `<video src="${data.src}" class="moment-media" autoplay loop muted playsinline></video>`;
                 }
                 
-                let captionHtml = data.caption ? `<div class="moment-caption">${data.caption}</div>` : '';
+                let captionHtml = data.caption ? `<div class="moment-caption" id="current-caption-box">${data.caption}</div>` : '';
                 
                 container.innerHTML = `<div class="moment-wrapper">${mediaHtml}${captionHtml}</div>`;
-                container.style.opacity = 1;
+                
+                if (data.caption) {
+                    const captionBox = document.getElementById('current-caption-box');
+                    let fontSize = 1.6; 
+                    captionBox.style.fontSize = fontSize + 'rem';
+                    
+                    requestAnimationFrame(() => {
+                        while (captionBox.scrollHeight > captionBox.clientHeight && fontSize > 0.6) {
+                            fontSize -= 0.05;
+                            captionBox.style.fontSize = fontSize + 'rem';
+                        }
+                        container.style.opacity = 1;
+                    });
+                } else {
+                    container.style.opacity = 1;
+                }
             }, 150); 
         }
 
