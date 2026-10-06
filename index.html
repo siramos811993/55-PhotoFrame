@@ -184,7 +184,12 @@
             <div id="moments-content" class="w-full h-full flex items-center justify-center"></div>
         </div>
 
-        <div id="messages-carousel" class="embedded-carousel" style="top: 64%; left: 71.5%; width: 22%; height: 21%;">
+        <!-- 
+          MESSAGES CONTAINER FIX:
+          Shifted top to 63.5% and severely restricted height to 19%. 
+          This physically blocks the bottom of the container from touching the drawn tape.
+        -->
+        <div id="messages-carousel" class="embedded-carousel" style="top: 63.5%; left: 71.5%; width: 22%; height: 19%;">
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             <div id="messages-content" class="w-full h-full flex items-start justify-center pt-1 sm:pt-2"></div>
@@ -236,7 +241,6 @@
             { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Racing down the water slides at Wild Wild Wet!' }
         ];
 
-        // Upgraded messagesData to support both text AND video messages
         const messagesData = [
             { type: 'text', content: `"Fair winds and following seas to the best crew I've ever served with." - CPT Tan` },
             { type: 'video', src: 'https://www.w3schools.com/html/mov_bbb.mp4', caption: 'Farewell from the Engineers - LTA Wong' },
