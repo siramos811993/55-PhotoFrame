@@ -19,9 +19,9 @@
             theme: {
                 extend: {
                     colors: {
-                        ink: '#2a2626',      // Dark vintage ink
-                        sepia: '#e4d5b7',    // Vintage paper tone
-                        navy: '#1a293b',     // Keeping navy for modal headers
+                        ink: '#2a2626',      
+                        sepia: '#e4d5b7',    
+                        navy: '#1a293b',     
                         parchment: '#f4f1ea' 
                     },
                     fontFamily: {
@@ -36,7 +36,7 @@
 
     <style>
         body {
-            background-color: #1a1a1a; /* Dark background to frame the scrapbook */
+            background-color: #1a1a1a; 
             overflow-x: hidden;
             margin: 0;
             display: flex;
@@ -48,24 +48,19 @@
             overflow: hidden;
         }
 
-        /* Hotspot Styling (Left Side Tags) */
         .hotspot {
             position: absolute;
             cursor: pointer;
             z-index: 10;
             border-radius: 8px;
-            /* Debug border: uncomment next line to see clickable areas during setup */
-            /* border: 2px solid rgba(255, 0, 0, 0.5); background: rgba(255, 0, 0, 0.1); */
         }
 
-        /* Subtle hover effect for the tags */
         .hotspot:hover {
             box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: brightness(1.1);
         }
 
-        /* Embedded Carousel Containers (Right Side Papers) */
         .embedded-carousel {
             position: absolute;
             z-index: 5;
@@ -73,35 +68,31 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            /* Debug border: uncomment next line to see carousel boundaries */
-            /* border: 2px solid rgba(0, 0, 255, 0.5); background: rgba(0, 0, 255, 0.1); */
         }
 
-        /* Polaroid styling for Our Moments */
         .polaroid {
             background: white;
-            padding: 4% 4% 12% 4%; /* Thick bottom border for polaroid look */
+            padding: 4% 4% 12% 4%; 
             box-shadow: 2px 4px 10px rgba(0,0,0,0.2);
             width: 90%;
             height: 90%;
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: rotate(-2deg); /* Slight natural tilt */
+            transform: rotate(-2deg); 
             transition: opacity 0.3s ease;
         }
         .polaroid img, .polaroid video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures media fills the square without stretching */
-            filter: sepia(0.2) contrast(1.1); /* Slight vintage filter */
+            object-fit: cover; 
+            filter: sepia(0.2) contrast(1.1); 
         }
 
-        /* Handwritten Message styling for Our Messages */
         .message-note {
             font-family: 'Caveat', cursive;
             color: #2a2626;
-            font-size: clamp(1.2rem, 2vw, 2.5rem); /* Scales naturally with the frame */
+            font-size: clamp(1.2rem, 2vw, 2.5rem); 
             text-align: center;
             line-height: 1.3;
             width: 90%;
@@ -110,7 +101,6 @@
             text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
         }
 
-        /* Carousel Navigation Buttons */
         .carousel-nav {
             position: absolute;
             top: 50%;
@@ -135,7 +125,6 @@
         .nav-prev { left: 2px; }
         .nav-next { right: 2px; }
 
-        /* Modal Overlays (From previous build) */
         .modal-overlay {
             opacity: 0;
             visibility: hidden;
@@ -149,76 +138,51 @@
 </head>
 <body class="p-2 sm:p-8">
 
-    <!-- MAIN DISPLAY CONTAINER -->
     <main id="mainframe" class="relative w-full max-w-[1400px] mx-auto shadow-2xl overflow-hidden rounded-sm bg-[#e4d5b7]">
         
-        <!-- Base Scrapbook Image -->
-        <img src="Gemini_Generated_Image_nnra02nnra02nnra_2.jpg" 
+        <!-- Base Scrapbook Image Updated to 55 Frame.jpg -->
+        <img src="55%20Frame.jpg" 
              alt="Scrapbook Ship Photo Frame" 
              class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
-        <!-- ==========================================
-             LEFT SIDE HOTSPOTS (Click to open Modal)
-             ========================================== -->
-             
-        <!-- Our Story Label -->
         <div class="hotspot" 
              style="top: 13%; left: 5%; width: 22%; height: 13%;" 
              onclick="openModal('story')"
              title="Read Our Story">
         </div>
 
-        <!-- Our Awards Label -->
         <div class="hotspot" 
              style="top: 38%; left: 6%; width: 22%; height: 21%;" 
              onclick="openModal('awards')"
              title="View Our Awards">
         </div>
 
-        <!-- Our Crew Label -->
         <div class="hotspot" 
              style="top: 71%; left: 5%; width: 25%; height: 16%;" 
              onclick="openModal('crew')"
              title="Meet Our Crew">
         </div>
 
-        <!-- ==========================================
-             RIGHT SIDE EMBEDDED CAROUSELS (Swipeable)
-             ========================================== -->
-             
-        <!-- Our Moments (Polaroid Space) -->
-        <!-- Positioned strictly within the borders of the top-right paper note -->
         <div id="moments-carousel" class="embedded-carousel" style="top: 23%; left: 69%; width: 24%; height: 25%;">
-            <!-- Navigation Arrows (visible on hover) -->
             <div class="carousel-nav nav-prev" onclick="changeMoment(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMoment(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             
-            <!-- Dynamic Content Injector -->
             <div id="moments-content" class="w-full h-full flex items-center justify-center">
                 <!-- Polaroid renders here -->
             </div>
         </div>
 
-        <!-- Our Messages (Text Space) -->
-        <!-- Positioned strictly within the borders of the bottom-right paper note -->
         <div id="messages-carousel" class="embedded-carousel" style="top: 67%; left: 70%; width: 22%; height: 20%;">
-            <!-- Navigation Arrows (visible on hover) -->
             <div class="carousel-nav nav-prev" onclick="changeMessage(-1)"><i class="fa-solid fa-chevron-left text-xs"></i></div>
             <div class="carousel-nav nav-next" onclick="changeMessage(1)"><i class="fa-solid fa-chevron-right text-xs"></i></div>
             
-            <!-- Dynamic Content Injector -->
             <div id="messages-content" class="w-full h-full flex items-center justify-center">
                 <!-- Message renders here -->
             </div>
         </div>
 
-        <!-- ==========================================
-             MODAL / LIGHTBOX (For Left-Side Hotspots)
-             ========================================== -->
-        <!-- Fixed inset-0 ensures full screen, bg-black/60 dims the scrapbook slightly -->
         <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
             
-            <!-- Modal Content Wrapper (Anti-Zoom applied here) -->
             <div id="modal-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
                 
                 <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
@@ -244,11 +208,6 @@
     </main>
 
     <script>
-        // ==========================================
-        // DATA STRUCTURES
-        // ==========================================
-
-        // Data for Left-Side Modals
         const modalData = {
             'story': {
                 title: "Our Story",
@@ -271,7 +230,6 @@
             }
         };
 
-        // Data for Right-Side Carousels (Our Moments & Our Messages)
         const momentsData = [
             { type: 'image', src: 'https://placehold.co/400x400/1a293b/e4d5b7?text=Moment+1' },
             { type: 'image', src: 'https://placehold.co/400x400/603e2e/e4d5b7?text=Moment+2' },
@@ -283,10 +241,6 @@
             `"We stood our watch, and we did it well. I'll miss this old ship." - ME2 Pillay`,
             `"To the engineers who kept us afloat, thank you." - LTA Wong`
         ];
-
-        // ==========================================
-        // EMBEDDED CAROUSEL LOGIC & SWIPE HANDLING
-        // ==========================================
         
         let currentMoment = 0;
         let currentMessage = 0;
@@ -295,7 +249,6 @@
             const container = document.getElementById('moments-content');
             const data = momentsData[currentMoment];
             
-            // Apply quick fade out/in effect
             container.style.opacity = 0;
             
             setTimeout(() => {
@@ -306,10 +259,9 @@
                     mediaHtml = `<video src="${data.src}" autoplay loop muted playsinline></video>`;
                 }
                 
-                // Wrap in polaroid div
                 container.innerHTML = `<div class="polaroid">${mediaHtml}</div>`;
                 container.style.opacity = 1;
-            }, 150); // wait for fade out
+            }, 150); 
         }
 
         function renderMessage() {
@@ -337,11 +289,9 @@
             renderMessage();
         }
 
-        // Initialize Carousels on load
         renderMoment();
         renderMessage();
 
-        // Add Swipe Event Listeners to Carousels
         function addSwipeListener(elementId, callbackPrev, callbackNext) {
             const el = document.getElementById(elementId);
             let touchstartX = 0;
@@ -357,19 +307,14 @@
             }, {passive: true});
 
             function handleSwipe() {
-                const threshold = 30; // Minimum pixel swipe distance
-                if (touchendX < touchstartX - threshold) callbackNext(); // Swiped left
-                if (touchendX > touchstartX + threshold) callbackPrev(); // Swiped right
+                const threshold = 30; 
+                if (touchendX < touchstartX - threshold) callbackNext(); 
+                if (touchendX > touchstartX + threshold) callbackPrev(); 
             }
         }
 
         addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
         addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
-
-
-        // ==========================================
-        // MODAL LOGIC & VISUAL VIEWPORT SYNC (Anti-Zoom)
-        // ==========================================
 
         const modal = document.getElementById('gallery-modal');
         const modalContent = document.getElementById('modal-content-wrapper');
@@ -386,7 +331,6 @@
             const tx = visualCenterX - layoutCenterX;
             const ty = visualCenterY - layoutCenterY;
             
-            // Counter-scale the modal so it appears 1x to the user
             modalContent.style.transform = `translate(${tx}px, ${ty}px) scale(${1 / scale})`;
         }
 
@@ -417,20 +361,17 @@
             document.body.classList.remove('modal-open');
             modalContent.style.transform = 'translate(0, 0) scale(1)';
             
-            // Clear content after animation
             setTimeout(() => {
                 document.getElementById('modal-body').innerHTML = '';
             }, 300);
         }
 
-        // Close when clicking the dark overlay backdrop
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
                 closeModal();
             }
         });
 
-        // Close on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && modal.classList.contains('active')) {
                 closeModal();
