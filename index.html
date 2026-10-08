@@ -52,36 +52,21 @@
         .nav-prev { left: 2px; }
         .nav-next { right: 2px; }
 
-        /* -------------------------------------
-           CENTER CREW MORPHING VIDEO STYLING
-        -------------------------------------- */
-        #center-video-container {
-            position: absolute;
-            z-index: 15;
-            top: 12%; left: 32%; width: 35%; height: 75%;
-            overflow: hidden;
-            border-radius: 4px;
-            pointer-events: none; /* Allows clicks to pass through to the hotspot */
-        }
-        #center-video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center bottom; /* Anchors the video focus to the crew at the bottom */
-            opacity: 0;
-            transition: opacity 1s ease-in-out; /* Smooth 1-second morph fade */
-            mix-blend-mode: multiply; /* Blends the video into the paper sketch */
-            filter: sepia(0.3) contrast(1.1) brightness(0.95);
-        }
-        #center-video.active {
-            opacity: 1;
-        }
+        /* CENTER CREW MORPHING VIDEO STYLING */
+        #center-video-container { position: absolute; z-index: 15; top: 12%; left: 32%; width: 35%; height: 75%; overflow: hidden; border-radius: 4px; pointer-events: none; }
+        #center-video { width: 100%; height: 100%; object-fit: cover; object-position: center bottom; opacity: 0; transition: opacity 1s ease-in-out; mix-blend-mode: multiply; filter: sepia(0.3) contrast(1.1) brightness(0.95); }
+        #center-video.active { opacity: 1; }
 
         .modal-overlay { opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         
         .loading-text { font-family: 'Caveat', cursive; color: #2a2626; font-size: clamp(1rem, 1.5vw, 1.5rem); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* VINTAGE SCROLLBAR FOR ALBUM MENU */
+        .album-scrollbar::-webkit-scrollbar { width: 4px; }
+        .album-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .album-scrollbar::-webkit-scrollbar-thumb { background: rgba(42, 38, 38, 0.2); border-radius: 2px; }
     </style>
 </head>
 <body class="p-2 sm:p-8">
@@ -90,24 +75,19 @@
         <img src="55%20Frame.jpg" alt="Scrapbook Ship Photo Frame" class="w-full h-auto block rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.8)]">
 
         <!-- Left Side Informational Hotspots -->
-        <div class="hotspot" style="top: 13%; left: 5%; width: 22%; height: 13%;" onclick="openModal('story')" title="Read Our Story"></div>
-        <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openModal('awards')" title="View Our Awards"></div>
-        <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openModal('crew')" title="Meet Our Crew"></div>
+        <div class="hotspot" style="top: 13%; left: 5%; width: 22%; height: 13%;" onclick="openInfoModal('story')" title="Read Our Story"></div>
+        <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openInfoModal('awards')" title="View Our Awards"></div>
+        <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openInfoModal('crew')" title="Meet Our Crew"></div>
         
-        <!-- Right Side Header Hotspots -->
-        <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openGalleryModal('moments')" title="View All Moments"></div>
-        <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openGalleryModal('messages')" title="View All Messages"></div>
+        <!-- Right Side Header Hotspots (Triggers the new Sketchbook Popup) -->
+        <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openScrapbookModal('moments')" title="View All Moments"></div>
+        <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openScrapbookModal('messages')" title="View All Messages"></div>
 
-        <!-- 
-            CENTER CREW MORPHING VIDEO 
-            Video is hidden by default. The hotspot above it triggers the morph.
-        -->
+        <!-- CENTER CREW MORPHING VIDEO -->
         <div id="center-video-container">
-            <!-- Uses relative path to play seamlessly from your GitHub repo -->
             <video id="center-video" src="Sen%20WS.mp4" playsinline preload="metadata"></video>
         </div>
         <div class="hotspot" style="top: 12%; left: 32%; width: 35%; height: 75%; z-index: 16;" onclick="toggleCenterVideo()" title="Bring Crew to Life"></div>
-
 
         <!-- Carousels -->
         <div id="moments-carousel" class="embedded-carousel" style="top: 24%; left: 71.5%; width: 22%; height: 23%;">
@@ -126,54 +106,87 @@
             </div>
         </div>
 
-        <!-- Global Lightbox Modal -->
-        <div id="gallery-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
-            <div id="modal-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-5xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
+        <!-- 1. STANDARD INFO MODAL (For Story, Awards, Crew) -->
+        <div id="info-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
+            <div id="info-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
                 <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
                     <div class="flex flex-col">
                         <p class="text-ink/60 text-[10px] sm:text-xs tracking-[0.3em] font-sans font-medium uppercase mb-1">We Stand Our Watch</p>
-                        <h2 id="modal-title" class="font-serif text-xl sm:text-3xl font-bold text-ink m-0">Loading...</h2>
+                        <h2 id="info-modal-title" class="font-serif text-xl sm:text-3xl font-bold text-ink m-0">Title</h2>
                     </div>
-                    <button onclick="closeModal()" class="text-ink/50 hover:text-ink hover:bg-ink/5 transition-colors w-10 h-10 flex justify-center items-center rounded-full text-xl focus:outline-none">
+                    <button onclick="closeModals()" class="text-ink/50 hover:text-ink hover:bg-ink/5 transition-colors w-10 h-10 flex justify-center items-center rounded-full text-xl focus:outline-none">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </header>
-                <div id="modal-body" class="flex-1 overflow-y-auto p-4 sm:p-8 bg-parchment text-ink font-serif text-lg leading-relaxed"></div>
+                <div id="info-modal-body" class="flex-1 overflow-y-auto p-4 sm:p-8 bg-parchment text-ink font-serif text-lg leading-relaxed"></div>
             </div>
         </div>
+
+        <!-- 2. VINTAGE SCAPBOOK MODAL (For Moments and Messages Full Gallery) -->
+        <div id="scrapbook-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 md:p-8">
+            <div id="scrapbook-content-wrapper" class="flex flex-row w-full max-w-6xl h-[85vh] sm:h-[90vh] rounded-[4px] shadow-[0_0_50px_rgba(0,0,0,0.9)] origin-center bg-[#f4f1ea] relative overflow-hidden">
+                
+                <!-- Left Sidebar (Folder Tabs) -->
+                <div class="w-[35%] md:w-[30%] bg-[#e0d3b8] border-r border-ink/20 shadow-[5px_0_15px_rgba(0,0,0,0.08)] z-10 flex flex-col pt-8 overflow-hidden">
+                    <h2 id="sidebar-title" class="font-handwritten text-3xl md:text-4xl text-ink text-center mb-6 drop-shadow-sm">ALBUMS</h2>
+                    <div id="album-list" class="flex flex-col gap-2 pl-2 md:pl-6 overflow-y-auto album-scrollbar pb-6">
+                        <!-- Dynamic Folder Tabs injected here -->
+                    </div>
+                </div>
+
+                <!-- Right Content (Graph Paper Page) -->
+                <div class="w-[65%] md:w-[70%] relative flex flex-col" style="background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 20px 20px;">
+                    
+                    <!-- Header & Taped Close Button -->
+                    <div class="flex justify-between items-start p-4 md:p-8 pb-0">
+                        <div class="flex flex-col">
+                            <h2 id="scrapbook-title" class="font-handwritten text-3xl md:text-5xl text-ink m-0 leading-none">All Our Moments</h2>
+                            <p class="text-ink/60 text-[9px] md:text-xs tracking-[0.2em] font-sans font-medium uppercase mt-2">We Stand Our Watch</p>
+                        </div>
+                        <button onclick="closeModals()" class="text-ink/70 hover:text-ink transition-colors w-10 h-10 flex justify-center items-center text-3xl md:text-4xl font-handwritten relative z-20 focus:outline-none">
+                            <!-- Faux Masking Tape -->
+                            <div class="absolute w-12 h-5 bg-[#e8dcb8] opacity-80 mix-blend-multiply rotate-[35deg] shadow-sm"></div>
+                            <i class="fa-solid fa-xmark relative z-10"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- 2x2 Polaroid Grid Area -->
+                    <div class="flex-1 relative flex items-center justify-center p-2 md:p-6 overflow-hidden">
+                        <button onclick="changeAlbumPage(-1)" id="album-prev-btn" class="absolute left-1 md:left-2 z-20 text-3xl md:text-4xl text-ink/30 hover:text-ink/80 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-left"></i></button>
+                        
+                        <div id="scrapbook-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full h-full max-h-full overflow-y-auto album-scrollbar p-4 md:p-8 items-start content-start">
+                            <!-- Polaroids/Messages injected here -->
+                        </div>
+                        
+                        <button onclick="changeAlbumPage(1)" id="album-next-btn" class="absolute right-1 md:right-2 z-20 text-3xl md:text-4xl text-ink/30 hover:text-ink/80 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    
+                    <!-- Pagination Footer -->
+                    <div class="p-4 pt-0 text-right font-handwritten text-lg md:text-2xl text-ink/80 pr-6 md:pr-10" id="album-pagination-text">Page 1 of 1</div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script>
-        // PASTE YOUR NEW APPS SCRIPT DEPLOYMENT URL HERE
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbygvkuti5gfBd4C3lk66ROyIEOCA86Tk6V7BvcAqVLZvyz2G1bWDNJyQQWjFZ9IuNWO/exec"; 
+        const SCRIPT_URL = "YOUR_WEB_APP_URL_HERE"; 
 
-        // ----------------------------------------------------
-        // Center Crew Video Morphing Logic
-        // ----------------------------------------------------
         const centerVideo = document.getElementById('center-video');
-
         function toggleCenterVideo() {
             if (centerVideo.paused) {
                 centerVideo.play();
-                centerVideo.classList.add('active'); // Fades in smoothly
+                centerVideo.classList.add('active'); 
             } else {
-                centerVideo.classList.remove('active'); // Fades out smoothly
-                // Wait for the 1-second CSS fade to finish before actually pausing the video
+                centerVideo.classList.remove('active'); 
                 setTimeout(() => { 
                     if (!centerVideo.classList.contains('active')) centerVideo.pause(); 
                 }, 1000);
             }
         }
+        centerVideo.addEventListener('ended', () => centerVideo.classList.remove('active'));
 
-        // Auto-fade out when the video finishes playing
-        centerVideo.addEventListener('ended', () => {
-            centerVideo.classList.remove('active');
-        });
-
-        // ----------------------------------------------------
-        // Data Configuration
-        // ----------------------------------------------------
-        const modalData = {
+        const infoModalData = {
             'story': {
                 title: "Our Story",
                 content: `<p class="mb-4">From our very first commissioning to our final patrol, the 55 Crew has weathered every storm together. We stood our watch through countless days and nights, forging an unbreakable bond.</p>
@@ -216,23 +229,22 @@
                     }
                 });
 
-                if (momentsData.length === 0) momentsData = [{type: 'text', caption: 'No moments added to Google Sheet yet!'}];
-                if (messagesData.length === 0) messagesData = [{type: 'text', content: 'No messages added to Google Sheet yet!'}];
+                if (momentsData.length === 0) momentsData = [{type: 'text', caption: 'No moments added yet!', author: 'System'}];
+                if (messagesData.length === 0) messagesData = [{type: 'text', content: 'No messages added yet!', author: 'System'}];
 
                 renderMoment();
                 renderMessage();
 
             } catch (error) {
                 console.error("Database connection failed:", error);
-                document.getElementById('moments-content').innerHTML = '<div class="text-only-message tilt-left text-sm">Failed to connect to Google Sheet. Check API URL.</div>';
-                document.getElementById('messages-content').innerHTML = '<div class="text-only-message tilt-right text-sm">Failed to connect to Google Sheet. Check API URL.</div>';
+                document.getElementById('moments-content').innerHTML = '<div class="text-only-message tilt-left text-sm">Failed to connect to Google Sheet.</div>';
+                document.getElementById('messages-content').innerHTML = '<div class="text-only-message tilt-right text-sm">Failed to connect to Google Sheet.</div>';
             }
         }
-
         window.onload = fetchScrapbookData;
 
         // ----------------------------------------------------
-        // Carousel Logic
+        // Home Screen Carousel Rendering
         // ----------------------------------------------------
         function renderMoment() {
             if(momentsData.length === 0) return;
@@ -263,12 +275,11 @@
             setTimeout(() => {
                 if (data.type === 'text') {
                     container.innerHTML = `
-                        <div class="text-only-message tilt-right" id="current-message-box" onclick="openGalleryModal('messages')" title="Click to read full messages">
+                        <div class="text-only-message tilt-right" id="current-message-box" onclick="openScrapbookModal('messages')" title="Click to read full messages">
                             <div class="message-content-box" id="msg-content">${data.content}</div>
                             <div class="message-author-box" id="msg-author"></div>
                         </div>
                     `;
-                    
                     requestAnimationFrame(() => {
                         requestAnimationFrame(() => {
                             const contentBox = document.getElementById('msg-content');
@@ -280,7 +291,6 @@
                             if (contentBox.scrollHeight > contentBox.clientHeight) {
                                 let lines = 25; 
                                 contentBox.style.webkitLineClamp = lines;
-                                
                                 while (contentBox.scrollHeight > contentBox.clientHeight && lines > 1) {
                                     lines--;
                                     contentBox.style.webkitLineClamp = lines;
@@ -315,104 +325,171 @@
             renderMessage();
         }
 
-        function addSwipeListener(elementId, callbackPrev, callbackNext) {
-            const el = document.getElementById(elementId);
-            let touchstartX = 0; let touchendX = 0;
-            el.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
-            el.addEventListener('touchend', e => {
-                touchendX = e.changedTouches[0].screenX;
-                if (touchendX < touchstartX - 30) callbackNext(); 
-                if (touchendX > touchstartX + 30) callbackPrev(); 
-            }, {passive: true});
-        }
-        addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
-        addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
+        // ----------------------------------------------------
+        // NEW: Vintage Scrapbook Gallery Modal Logic
+        // ----------------------------------------------------
+        let scrapbookType = ''; // 'moments' or 'messages'
+        let scrapbookAlbums = [];
+        let activeAlbum = '';
+        let albumPage = 1;
+        const ITEMS_PER_PAGE = 4; // Enforces the 2x2 grid
 
-        // ----------------------------------------------------
-        // Modals & Navigation
-        // ----------------------------------------------------
-        function openGalleryModal(type) {
-            let title = '';
-            let htmlContent = '<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">';
+        function openScrapbookModal(type) {
+            scrapbookType = type;
             let dataset = type === 'moments' ? momentsData : messagesData;
-            title = type === 'moments' ? "All Our Moments" : "All Our Messages";
+            
+            document.getElementById('sidebar-title').innerText = type === 'moments' ? 'ALBUMS' : 'AUTHORS';
+            document.getElementById('scrapbook-title').innerText = type === 'moments' ? 'All Our Moments' : 'All Our Messages';
 
-            dataset.forEach(item => {
+            // Extract unique authors/folders from the dataset
+            scrapbookAlbums = [...new Set(dataset.map(item => item.author || (type === 'moments' ? 'General' : 'Crew')))];
+            
+            if(scrapbookAlbums.length > 0) activeAlbum = scrapbookAlbums[0];
+            albumPage = 1;
+
+            document.body.classList.add('modal-open');
+            document.getElementById('scrapbook-modal').classList.add('active');
+            
+            if (window.visualViewport) syncVisualViewport('scrapbook-content-wrapper');
+            if (!centerVideo.paused) { centerVideo.pause(); centerVideo.classList.remove('active'); }
+
+            renderScrapbookContent();
+        }
+
+        function renderScrapbookContent() {
+            let dataset = scrapbookType === 'moments' ? momentsData : messagesData;
+            
+            // Filter data by the currently selected folder/author
+            let filteredData = dataset.filter(item => (item.author || (scrapbookType === 'moments' ? 'General' : 'Crew')) === activeAlbum);
+            
+            let totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
+            if (albumPage > totalPages) albumPage = totalPages;
+            if (albumPage < 1) albumPage = 1;
+
+            // 1. RENDER LEFT SIDEBAR (Folder Tabs)
+            let albumHtml = '';
+            scrapbookAlbums.forEach(album => {
+                let isActive = album === activeAlbum;
+                albumHtml += `
+                    <div onclick="selectAlbum('${album.replace(/'/g, "\\'")}')" class="cursor-pointer py-3 md:py-4 px-3 md:px-6 rounded-l-lg border-y border-l border-ink/20 ${isActive ? 'bg-[#f4f1ea] shadow-[-5px_5px_15px_rgba(0,0,0,0.05)] translate-x-1 font-bold' : 'bg-[#e0d3b8] hover:bg-[#ebdcc4]'} transition-all text-xl md:text-3xl font-handwritten text-ink relative">
+                        ${album}
+                        ${isActive ? '<div class="absolute top-3 right-2 md:right-4 w-4 h-8 md:h-10 bg-yellow-200/80 rotate-[15deg] shadow-sm"></div>' : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('album-list').innerHTML = albumHtml;
+
+            // 2. RENDER RIGHT GRID (4 items max)
+            let gridHtml = '';
+            let startIdx = (albumPage - 1) * ITEMS_PER_PAGE;
+            let pageData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+            
+            pageData.forEach((item, idx) => {
+                // Alternating tilts for natural polaroid look
+                let tilt = idx % 2 === 0 ? 'rotate-1' : '-rotate-1';
+                
                 if (item.type === 'text') {
-                    htmlContent += `
-                        <div class="flex flex-col items-center justify-center bg-white/40 p-6 rounded shadow-sm border border-ink/5 min-h-[200px]">
-                            <p class="font-handwritten text-2xl text-ink text-center leading-tight mb-2">${item.content || item.caption}</p>
-                            <p class="font-handwritten text-xl text-ink/80 text-right w-full">- ${item.author || 'Crew'}</p>
-                        </div>`;
+                    gridHtml += `
+                        <div class="relative bg-[#fbf8f1] p-4 md:p-6 shadow-md border border-ink/10 flex flex-col justify-center items-center min-h-[160px] md:min-h-[220px] ${tilt}">
+                            <div class="absolute -top-2 left-1/2 -translate-x-1/2 w-10 h-4 bg-[#e8dcb8] shadow-sm rotate-3 opacity-80 mix-blend-multiply z-10"></div>
+                            <p class="font-handwritten text-xl md:text-3xl text-ink text-center leading-tight">"${item.content}"</p>
+                        </div>
+                    `;
                 } else {
                     let media = item.type === 'video' 
-                        ? `<video src="${item.src}" controls class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md bg-black"></video>`
-                        : `<img src="${item.src}" class="w-full h-48 sm:h-56 object-cover rounded border border-ink/10 shadow-md" alt="Media">`;
-                    htmlContent += `
-                        <div class="flex flex-col items-center bg-white/40 p-3 sm:p-4 rounded shadow-sm border border-ink/5">
+                        ? `<video src="${item.src}" controls class="w-full aspect-[4/3] object-cover bg-black border border-ink/10"></video>`
+                        : `<img src="${item.src}" class="w-full aspect-[4/3] object-cover border border-ink/10 filter sepia-[0.2]" alt="Media">`;
+                    
+                    gridHtml += `
+                        <div class="relative bg-white p-2 pb-8 md:p-3 md:pb-12 shadow-md border border-gray-200 ${tilt} transition-transform hover:scale-[1.02] duration-300">
+                            <div class="absolute -top-2 -left-2 w-8 md:w-12 h-4 md:h-5 bg-[#e8dcb8] shadow-sm -rotate-[35deg] opacity-80 mix-blend-multiply z-10"></div>
+                            <div class="absolute -top-2 -right-2 w-8 md:w-12 h-4 md:h-5 bg-[#e8dcb8] shadow-sm rotate-[35deg] opacity-80 mix-blend-multiply z-10"></div>
                             ${media}
-                            <p class="mt-3 font-handwritten text-2xl text-ink text-center leading-tight">${item.caption || ''}</p>
-                            <p class="font-handwritten text-lg text-ink/80 text-right w-full mt-1">${item.author ? '- '+item.author : ''}</p>
-                        </div>`;
+                            <div class="absolute bottom-1 md:bottom-2 left-0 w-full flex flex-col items-center">
+                                <p class="font-handwritten text-xl md:text-2xl text-ink text-center leading-tight truncate px-2 w-full">${item.caption || ''}</p>
+                                <p class="font-handwritten text-sm md:text-lg text-ink/70 italic">- ${item.author || 'Crew'}</p>
+                            </div>
+                        </div>
+                    `;
                 }
             });
-            htmlContent += '</div>';
+            document.getElementById('scrapbook-grid').innerHTML = gridHtml;
 
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-body').innerHTML = htmlContent;
-            document.body.classList.add('modal-open');
-            modal.classList.add('active');
-            if (window.visualViewport) syncVisualViewport();
-            
-            // Auto-pause the center morphing video if the modal is opened
-            if (!centerVideo.paused) {
-                centerVideo.pause();
-                centerVideo.classList.remove('active');
-            }
+            // 3. PAGINATION
+            document.getElementById('album-pagination-text').innerText = `Page ${albumPage} of ${totalPages}`;
+            document.getElementById('album-prev-btn').style.display = albumPage > 1 ? 'block' : 'none';
+            document.getElementById('album-next-btn').style.display = albumPage < totalPages ? 'block' : 'none';
         }
 
-        const modal = document.getElementById('gallery-modal');
-        const modalContent = document.getElementById('modal-content-wrapper');
+        function selectAlbum(album) {
+            activeAlbum = album;
+            albumPage = 1;
+            renderScrapbookContent();
+        }
 
-        function syncVisualViewport() {
-            if (!modal.classList.contains('active') || !window.visualViewport) return;
+        function changeAlbumPage(dir) {
+            albumPage += dir;
+            renderScrapbookContent();
+        }
+
+        // ----------------------------------------------------
+        // Generic Modal Management
+        // ----------------------------------------------------
+        const infoModal = document.getElementById('info-modal');
+        const scrapbookModal = document.getElementById('scrapbook-modal');
+
+        function openInfoModal(key) {
+            const data = infoModalData[key];
+            if (!data) return;
+            document.getElementById('info-modal-title').innerText = data.title;
+            document.getElementById('info-modal-body').innerHTML = data.content || '<p class="italic text-ink/60">No content added yet.</p>';
+            document.body.classList.add('modal-open');
+            infoModal.classList.add('active');
+            if (window.visualViewport) syncVisualViewport('info-content-wrapper');
+            if (!centerVideo.paused) { centerVideo.pause(); centerVideo.classList.remove('active'); }
+        }
+
+        function syncVisualViewport(wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (!wrapper || !window.visualViewport) return;
             const scale = window.visualViewport.scale;
             const tx = (window.visualViewport.offsetLeft + (window.visualViewport.width / 2)) - (window.innerWidth / 2);
             const ty = (window.visualViewport.offsetTop + (window.visualViewport.height / 2)) - (window.innerHeight / 2);
-            modalContent.style.transform = `translate(${tx}px, ${ty}px) scale(${1 / scale})`;
+            wrapper.style.transform = `translate(${tx}px, ${ty}px) scale(${1 / scale})`;
         }
+
         if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', syncVisualViewport);
-            window.visualViewport.addEventListener('scroll', syncVisualViewport);
+            window.visualViewport.addEventListener('resize', () => {
+                if(infoModal.classList.contains('active')) syncVisualViewport('info-content-wrapper');
+                if(scrapbookModal.classList.contains('active')) syncVisualViewport('scrapbook-content-wrapper');
+            });
+            window.visualViewport.addEventListener('scroll', () => {
+                if(infoModal.classList.contains('active')) syncVisualViewport('info-content-wrapper');
+                if(scrapbookModal.classList.contains('active')) syncVisualViewport('scrapbook-content-wrapper');
+            });
         }
 
-        function openModal(key) {
-            const data = modalData[key];
-            if (!data) return;
-            document.getElementById('modal-title').innerText = data.title;
-            document.getElementById('modal-body').innerHTML = data.content || '<p class="italic text-ink/60">No content added yet.</p>';
-            document.body.classList.add('modal-open');
-            modal.classList.add('active');
-            if (window.visualViewport) syncVisualViewport();
-            
-            // Auto-pause the center morphing video if the modal is opened
-            if (!centerVideo.paused) {
-                centerVideo.pause();
-                centerVideo.classList.remove('active');
-            }
-        }
-
-        function closeModal() {
-            modal.classList.remove('active');
+        function closeModals() {
             document.body.classList.remove('modal-open');
-            modalContent.style.transform = 'translate(0, 0) scale(1)';
-            const videos = document.querySelectorAll('#modal-body video');
+            
+            infoModal.classList.remove('active');
+            document.getElementById('info-content-wrapper').style.transform = 'translate(0, 0) scale(1)';
+            
+            scrapbookModal.classList.remove('active');
+            document.getElementById('scrapbook-content-wrapper').style.transform = 'translate(0, 0) scale(1)';
+            
+            const videos = document.querySelectorAll('.modal-overlay video');
             videos.forEach(vid => vid.pause());
-            setTimeout(() => { document.getElementById('modal-body').innerHTML = ''; }, 300);
+            
+            setTimeout(() => { document.getElementById('info-modal-body').innerHTML = ''; }, 300);
         }
 
-        modal.addEventListener('click', function(e) { if (e.target === modal) closeModal(); });
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && modal.classList.contains('active')) closeModal(); });
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) { if (e.target === this) closeModals(); });
+        });
+        document.addEventListener('keydown', function(e) { 
+            if (e.key === 'Escape' && (infoModal.classList.contains('active') || scrapbookModal.classList.contains('active'))) closeModals(); 
+        });
     </script>
 </body>
 </html>
