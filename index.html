@@ -69,7 +69,7 @@
         .album-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .album-scrollbar::-webkit-scrollbar-thumb { background: rgba(42, 38, 38, 0.2); border-radius: 2px; }
         
-        .polaroid-media-layer { mix-blend-mode: multiply; filter: sepia(0.2) contrast(1.05) brightness(0.98); }
+        .vintage-media-layer { mix-blend-mode: multiply; filter: sepia(0.2) contrast(1.05) brightness(0.98); border-radius: 2px; box-shadow: 2px 3px 8px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body class="p-2 sm:p-8">
@@ -82,7 +82,7 @@
         <div class="hotspot" style="top: 38%; left: 6%; width: 22%; height: 21%;" onclick="openInfoModal('awards')" title="View Our Awards"></div>
         <div class="hotspot" style="top: 71%; left: 5%; width: 25%; height: 16%;" onclick="openInfoModal('crew')" title="Meet Our Crew"></div>
         
-        <!-- Right Side Header Hotspots (Triggers the new Asset-Based Scrapbook Popup) -->
+        <!-- Right Side Header Hotspots -->
         <div class="hotspot" style="top: 13.5%; left: 70%; width: 25%; height: 8.5%;" onclick="openScrapbookModal('moments')" title="View All Moments"></div>
         <div class="hotspot" style="top: 55.5%; left: 70%; width: 25%; height: 8%;" onclick="openScrapbookModal('messages')" title="View All Messages"></div>
 
@@ -125,49 +125,49 @@
             </div>
         </div>
 
-        <!-- 2. FULL CUSTOM ASSET SCAPBOOK MODAL -->
-        <!-- The entire modal uses popup-bg.jpg as its seamless background to provide the torn edge and graph paper texture natively -->
+        <!-- 2. CLEAN ASSET SCAPBOOK MODAL -->
+        <!-- Uses popup-bg.png as the background. -->
         <div id="scrapbook-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 md:p-8">
-            <div id="scrapbook-content-wrapper" class="flex flex-row w-full max-w-6xl h-[85vh] sm:h-[90vh] rounded-[4px] shadow-[0_0_50px_rgba(0,0,0,0.9)] origin-center relative overflow-hidden bg-center bg-no-repeat bg-[length:100%_100%]" style="background-image: url('popup-bg.jpg');">
+            <div id="scrapbook-content-wrapper" class="flex flex-row w-full max-w-6xl h-[85vh] sm:h-[90vh] origin-center relative overflow-hidden bg-center bg-no-repeat bg-[length:100%_100%] drop-shadow-[0_0_50px_rgba(0,0,0,0.9)]" style="background-image: url('popup-bg.png');">
                 
-                <!-- Left Sidebar (Folder Tabs over the brown paper section of popup-bg.jpg) -->
-                <!-- Transparent background so the image texture shows through -->
-                <div class="w-[35%] md:w-[32%] z-10 flex flex-col pt-12 md:pt-16 overflow-hidden">
-                    <h2 id="sidebar-title" class="font-handwritten text-3xl md:text-4xl text-ink text-center mb-6 drop-shadow-sm">ALBUMS</h2>
-                    <div id="album-list" class="flex flex-col gap-1 pl-4 md:pl-8 overflow-y-auto album-scrollbar pb-6 items-start">
-                        <!-- folder-tab.png images injected here via JS -->
+                <!-- Left Sidebar (Clean Menu over brown paper) -->
+                <!-- Width adjusted to roughly match the fold of your new asset -->
+                <div class="w-[45%] md:w-[42%] z-10 flex flex-col pt-12 md:pt-20 overflow-hidden pr-4 md:pr-12">
+                    <h2 id="sidebar-title" class="font-handwritten text-4xl md:text-5xl text-ink text-center mb-8 drop-shadow-sm ml-4 md:ml-12">ALBUMS</h2>
+                    <div id="album-list" class="flex flex-col gap-4 pl-8 md:pl-20 overflow-y-auto album-scrollbar pb-6 items-start">
+                        <!-- Menu items injected here via JS -->
                     </div>
                 </div>
 
-                <!-- Right Content (Graph Paper section of popup-bg.jpg) -->
-                <div class="w-[65%] md:w-[68%] relative flex flex-col pt-8 md:pt-12">
+                <!-- Right Content (Clean Grid over graph paper) -->
+                <div class="w-[55%] md:w-[58%] relative flex flex-col pt-10 md:pt-16 pr-6 md:pr-12 pl-2 md:pl-4">
                     
                     <!-- Header -->
-                    <div class="flex justify-between items-start px-6 md:px-12 pb-0">
+                    <div class="flex justify-between items-start pb-4 border-b border-ink/10 mr-4">
                         <div class="flex flex-col">
-                            <h2 id="scrapbook-title" class="font-handwritten text-3xl md:text-5xl text-ink m-0 leading-none">All Our Moments</h2>
-                            <p class="text-ink/60 text-[9px] md:text-xs tracking-[0.2em] font-sans font-medium uppercase mt-2">We Stand Our Watch</p>
+                            <h2 id="scrapbook-title" class="font-handwritten text-4xl md:text-5xl text-ink m-0 leading-none">All Our Moments</h2>
+                            <p class="text-ink/60 text-[10px] md:text-xs tracking-[0.2em] font-sans font-medium uppercase mt-2">We Stand Our Watch</p>
                         </div>
                     </div>
 
-                    <!-- Taped Close Button fixed to top right of the graph paper -->
-                    <button onclick="closeModals()" class="absolute top-6 right-6 md:top-10 md:right-10 text-ink/70 hover:text-ink transition-colors w-10 h-10 flex justify-center items-center text-4xl font-handwritten relative z-50 focus:outline-none">
-                        <i class="fa-solid fa-xmark relative z-10"></i>
+                    <!-- Close Button -->
+                    <button onclick="closeModals()" class="absolute top-8 right-10 md:top-14 md:right-14 text-ink/60 hover:text-ink transition-colors w-10 h-10 flex justify-center items-center text-3xl font-handwritten relative z-50 focus:outline-none">
+                        <i class="fa-solid fa-xmark"></i>
                     </button>
                     
-                    <!-- 2x2 Polaroid Grid Area -->
-                    <div class="flex-1 relative flex items-center justify-center p-2 md:p-6 overflow-hidden">
-                        <button onclick="changeAlbumPage(-1)" id="album-prev-btn" class="absolute left-1 md:left-2 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-left"></i></button>
+                    <!-- 2x2 Clean Grid Area -->
+                    <div class="flex-1 relative flex items-center justify-center py-4 overflow-hidden">
+                        <button onclick="changeAlbumPage(-1)" id="album-prev-btn" class="absolute left-0 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-left"></i></button>
                         
-                        <div id="scrapbook-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8 w-full h-full max-h-full overflow-y-auto album-scrollbar p-2 md:p-6 items-start content-start">
-                            <!-- polaroid.png wrapped media injected here via JS -->
+                        <div id="scrapbook-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-8 w-full h-full max-h-full overflow-y-auto album-scrollbar p-2 items-start content-start px-8">
+                            <!-- Clean images and text injected here via JS -->
                         </div>
                         
-                        <button onclick="changeAlbumPage(1)" id="album-next-btn" class="absolute right-1 md:right-2 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-right"></i></button>
+                        <button onclick="changeAlbumPage(1)" id="album-next-btn" class="absolute right-2 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     
                     <!-- Pagination Footer -->
-                    <div class="p-4 pt-0 text-right font-handwritten text-lg md:text-2xl text-ink/80 pr-6 md:pr-12" id="album-pagination-text">Page 1 of 1</div>
+                    <div class="p-4 pt-0 text-right font-handwritten text-lg md:text-xl text-ink/70" id="album-pagination-text">Page 1 of 1</div>
                 </div>
             </div>
         </div>
@@ -343,8 +343,8 @@
         addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
 
         // ----------------------------------------------------
-        // FULL CUSTOM ASSET SCAPBOOK GALLERY
-        // Integrates folder-tab.png and polaroid.png naturally over popup-bg.jpg
+        // CLEAN ASSET SCAPBOOK GALLERY
+        // Uses pure text menus and un-bordered images on popup-bg.png
         // ----------------------------------------------------
         let scrapbookType = ''; 
         let scrapbookAlbums = [];
@@ -381,22 +381,19 @@
             if (albumPage > totalPages) albumPage = totalPages;
             if (albumPage < 1) albumPage = 1;
 
-            // 1. RENDER TABS (Using folder-tab.png)
+            // 1. RENDER LEFT MENU (Clean Text List)
             let albumHtml = '';
             scrapbookAlbums.forEach(album => {
                 let isActive = album === activeAlbum;
                 albumHtml += `
-                    <div onclick="selectAlbum('${album.replace(/'/g, "\\'")}')" class="relative w-[90%] md:w-[85%] cursor-pointer transition-transform duration-300 mb-2 md:mb-4 ${isActive ? 'translate-x-4 md:translate-x-6 scale-105' : 'hover:translate-x-2'}">
-                        <!-- Dynamic Folder Tab Image Background -->
-                        <img src="folder-tab.png" class="w-full h-auto drop-shadow-md transition-opacity ${isActive ? 'opacity-100 filter brightness-105' : 'opacity-85 hover:opacity-100'}">
-                        <!-- Text absolutely positioned over the tab -->
-                        <div class="absolute inset-0 flex items-center pl-[18%] pb-[2%] font-handwritten text-xl md:text-2xl lg:text-3xl text-ink ${isActive ? 'font-bold' : ''}">${album}</div>
+                    <div onclick="selectAlbum('${album.replace(/'/g, "\\'")}')" class="w-full cursor-pointer transition-all duration-200 py-1 ${isActive ? 'translate-x-2' : 'hover:translate-x-1'}">
+                        <span class="font-handwritten text-2xl md:text-3xl text-ink ${isActive ? 'font-bold underline decoration-2 underline-offset-4' : 'opacity-80'}">${album}</span>
                     </div>
                 `;
             });
             document.getElementById('album-list').innerHTML = albumHtml;
 
-            // 2. RENDER GRID (Using polaroid.png framing)
+            // 2. RENDER RIGHT GRID (Clean Images + Captions below)
             let gridHtml = '';
             let startIdx = (albumPage - 1) * ITEMS_PER_PAGE;
             let pageData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
@@ -404,39 +401,27 @@
             pageData.forEach((item, idx) => {
                 let tilt = idx % 2 === 0 ? 'rotate-1' : '-rotate-1';
                 
-                // If it's a text message, we generate a paper-like div to slip inside the polaroid frame
-                let mediaElement = '';
                 if (item.type === 'text') {
-                    mediaElement = `
-                        <div class="w-full h-full bg-[#fbf8f1] flex items-center justify-center p-4 shadow-inner">
-                            <p class="font-handwritten text-xl md:text-3xl text-ink text-center leading-tight line-clamp-6">${item.content}</p>
+                    // Text messages displayed directly on the graph paper
+                    gridHtml += `
+                        <div class="flex flex-col items-center justify-center p-2 md:p-4 min-h-[150px] ${tilt}">
+                            <p class="font-handwritten text-xl md:text-2xl text-ink text-center leading-tight">"${item.content}"</p>
                         </div>
                     `;
-                } else if (item.type === 'video') {
-                    mediaElement = `<video src="${item.src}" controls class="w-full h-full object-cover bg-black polaroid-media-layer"></video>`;
                 } else {
-                    mediaElement = `<img src="${item.src}" class="w-full h-full object-cover polaroid-media-layer" alt="Media">`;
+                    let media = item.type === 'video' 
+                        ? `<video src="${item.src}" controls class="w-full aspect-[4/3] object-cover bg-black vintage-media-layer"></video>`
+                        : `<img src="${item.src}" class="w-full aspect-[4/3] object-cover vintage-media-layer" alt="Media">`;
+                    
+                    gridHtml += `
+                        <div class="w-full flex flex-col items-center ${tilt} transition-transform hover:scale-[1.02] duration-300">
+                            ${media}
+                            <div class="w-full flex flex-col items-center mt-3">
+                                <p class="font-handwritten text-xl md:text-2xl text-ink text-center leading-tight line-clamp-2">${item.caption || ''}</p>
+                            </div>
+                        </div>
+                    `;
                 }
-
-                gridHtml += `
-                    <div class="relative w-full max-w-[280px] mx-auto ${tilt} transition-transform hover:scale-[1.02] duration-300">
-                        
-                        <!-- LAYER 1: The Content (Slipped behind the frame window) -->
-                        <!-- Position assumes standard polaroid window dimensions (top 6%, sides 6%, height 68%) -->
-                        <div class="absolute z-0 overflow-hidden" style="top: 6%; left: 6%; width: 88%; height: 68%;">
-                            ${mediaElement}
-                        </div>
-                        
-                        <!-- LAYER 2: The Uploaded Polaroid PNG Mask/Frame -->
-                        <img src="polaroid.png" class="relative w-full h-auto z-10 pointer-events-none drop-shadow-lg">
-                        
-                        <!-- LAYER 3: The Handwritten Caption (Drawn on the bottom white space) -->
-                        <div class="absolute z-20 flex flex-col items-center justify-center" style="bottom: 4%; left: 5%; width: 90%; height: 22%;">
-                            <p class="font-handwritten text-lg md:text-2xl text-ink text-center leading-tight line-clamp-2 px-2">${item.caption || (item.type === 'text' ? '' : item.content) || ''}</p>
-                            <p class="font-handwritten text-sm md:text-base text-ink/70 italic mt-1">- ${item.author || 'Crew'}</p>
-                        </div>
-                    </div>
-                `;
             });
             document.getElementById('scrapbook-grid').innerHTML = gridHtml;
 
