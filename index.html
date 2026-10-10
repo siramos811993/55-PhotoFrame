@@ -122,50 +122,48 @@
 
         <!-- 2. CLEAN ASSET SCAPBOOK MODAL (Mapped Geometrically) -->
         <div id="scrapbook-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 md:p-8">
-            <!-- Constrained to a strict 1.6:1 aspect ratio to perfectly map the book shape -->
             <div id="scrapbook-content-wrapper" class="flex flex-row w-full max-w-6xl max-h-[90vh] origin-center relative overflow-hidden bg-center bg-no-repeat bg-[length:100%_100%] drop-shadow-[0_0_50px_rgba(0,0,0,0.9)]" style="aspect-ratio: 1.6 / 1; background-image: url('popup-bg.png');">
                 
-                <!-- X Close Button placed correctly on the top right edge of the paper -->
-                <button onclick="closeModals()" class="absolute top-[6%] right-[8%] text-ink/60 hover:text-ink transition-colors w-10 h-10 flex justify-center items-center text-4xl font-handwritten z-50 focus:outline-none">
+                <!-- X Close Button pushed to the extreme top right corner -->
+                <button onclick="closeModals()" class="absolute top-[4%] right-[4%] text-ink/60 hover:text-ink transition-colors w-10 h-10 flex justify-center items-center text-4xl font-handwritten z-50 focus:outline-none">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
 
                 <!-- Left Page (Menu) -->
-                <!-- Uses strict percentage padding to avoid the torn edge -->
-                <div class="w-1/2 h-full flex flex-col pt-[12%] pb-[8%] pl-[16%] pr-[6%] z-10 overflow-hidden">
-                    <h2 id="sidebar-title" class="font-handwritten text-4xl md:text-5xl lg:text-6xl text-ink text-left mb-4 md:mb-8 drop-shadow-sm">ALBUMS</h2>
-                    <div id="album-list" class="flex flex-col gap-2 md:gap-4 overflow-y-auto album-scrollbar items-start w-full">
+                <!-- Top padding reduced significantly (pt-[7%]) to shift header up, font sizes reduced -->
+                <div class="w-1/2 h-full flex flex-col pt-[7%] pb-[8%] pl-[16%] pr-[6%] z-10 overflow-hidden">
+                    <h2 id="sidebar-title" class="font-handwritten text-3xl md:text-4xl lg:text-5xl text-ink text-left mb-2 md:mb-4 drop-shadow-sm">ALBUMS</h2>
+                    <div id="album-list" class="flex flex-col gap-2 overflow-y-auto album-scrollbar items-start w-full">
                         <!-- Menu items injected here -->
                     </div>
                 </div>
 
                 <!-- Right Page (Grid) -->
-                <!-- Strict percentage padding to perfectly overlay the graph paper -->
-                <div class="w-1/2 h-full relative flex flex-col pt-[10%] pb-[8%] pr-[16%] pl-[6%] z-10">
+                <!-- Top padding reduced significantly (pt-[5%]) to shift header up -->
+                <div class="w-1/2 h-full relative flex flex-col pt-[5%] pb-[8%] pr-[16%] pl-[6%] z-10">
                     
-                    <div class="flex flex-col pb-2 md:pb-4 border-b border-ink/10 mb-2 md:mb-4">
+                    <div class="flex flex-col pb-2 border-b border-ink/10 mb-2 md:mb-4">
                         <h2 id="scrapbook-title" class="font-handwritten text-3xl md:text-5xl text-ink m-0 leading-none">All Our Moments</h2>
-                        <p class="text-ink/60 text-[8px] md:text-[10px] tracking-[0.2em] font-sans font-medium uppercase mt-2">We Stand Our Watch</p>
+                        <!-- REMOVED "We Stand Our Watch" Label Here -->
                     </div>
                     
                     <div class="flex-1 relative flex items-center justify-center overflow-hidden">
                         <button onclick="changeAlbumPage(-1)" id="album-prev-btn" class="absolute left-0 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-left"></i></button>
                         
-                        <!-- 2x2 Grid with constrained image boxes -->
-                        <div id="scrapbook-grid" class="grid grid-cols-2 gap-4 md:gap-6 w-full h-full max-h-full overflow-y-auto album-scrollbar items-start content-start px-8">
+                        <!-- 2x2 Grid with constrained image boxes. Padding reduced to px-2 to maximize image space -->
+                        <div id="scrapbook-grid" class="grid grid-cols-2 gap-3 md:gap-4 w-full h-full max-h-full overflow-y-auto album-scrollbar items-start content-start px-2 md:px-4">
                             <!-- Clean images and text injected here -->
                         </div>
                         
                         <button onclick="changeAlbumPage(1)" id="album-next-btn" class="absolute right-0 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     
-                    <div class="text-right font-handwritten text-lg md:text-2xl text-ink/70 mt-2" id="album-pagination-text">Page 1 of 1</div>
+                    <div class="text-right font-handwritten text-lg md:text-xl text-ink/70 mt-2" id="album-pagination-text">Page 1 of 1</div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. EXPANDED MEDIA LIGHTBOX (NEW) -->
-        <!-- Opens when you click an image in the scrapbook grid -->
+        <!-- 3. EXPANDED MEDIA LIGHTBOX -->
         <div id="expanded-media-modal" class="modal-overlay fixed inset-0 z-[60] flex flex-col items-center justify-center bg-black/95 p-4 md:p-8" onclick="closeExpandedMedia(event)">
             <button class="absolute top-4 right-4 md:top-8 md:right-8 text-white/50 hover:text-white transition-colors w-12 h-12 flex justify-center items-center text-4xl focus:outline-none">
                 <i class="fa-solid fa-xmark pointer-events-none"></i>
@@ -331,6 +329,19 @@
             renderMessage();
         }
 
+        function addSwipeListener(elementId, callbackPrev, callbackNext) {
+            const el = document.getElementById(elementId);
+            let touchstartX = 0; let touchendX = 0;
+            el.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+            el.addEventListener('touchend', e => {
+                touchendX = e.changedTouches[0].screenX;
+                if (touchendX < touchstartX - 30) callbackNext(); 
+                if (touchendX > touchstartX + 30) callbackPrev(); 
+            }, {passive: true});
+        }
+        addSwipeListener('moments-carousel', () => changeMoment(-1), () => changeMoment(1));
+        addSwipeListener('messages-carousel', () => changeMessage(-1), () => changeMessage(1));
+
         // ----------------------------------------------------
         // CLEAN ASSET SCAPBOOK GALLERY
         // ----------------------------------------------------
@@ -369,19 +380,19 @@
             if (albumPage > totalPages) albumPage = totalPages;
             if (albumPage < 1) albumPage = 1;
 
-            // 1. RENDER LEFT MENU
+            // 1. RENDER LEFT MENU (Font size reduced)
             let albumHtml = '';
             scrapbookAlbums.forEach(album => {
                 let isActive = album === activeAlbum;
                 albumHtml += `
-                    <div onclick="selectAlbum('${album.replace(/'/g, "\\'")}')" class="w-full cursor-pointer transition-all duration-200 py-1 md:py-2 ${isActive ? 'translate-x-2' : 'hover:translate-x-1'}">
-                        <span class="font-handwritten text-2xl md:text-4xl text-ink ${isActive ? 'font-bold border-b-2 border-ink/40' : 'opacity-70'}">${album}</span>
+                    <div onclick="selectAlbum('${album.replace(/'/g, "\\'")}')" class="w-full cursor-pointer transition-all duration-200 py-1 ${isActive ? 'translate-x-2' : 'hover:translate-x-1'}">
+                        <span class="font-handwritten text-xl md:text-2xl lg:text-3xl text-ink ${isActive ? 'font-bold border-b-2 border-ink/40' : 'opacity-70'}">${album}</span>
                     </div>
                 `;
             });
             document.getElementById('album-list').innerHTML = albumHtml;
 
-            // 2. RENDER RIGHT GRID
+            // 2. RENDER RIGHT GRID (Padding reduced, text resized to fit more content)
             let gridHtml = '';
             let startIdx = (albumPage - 1) * ITEMS_PER_PAGE;
             let pageData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
@@ -392,11 +403,10 @@
                 if (item.type === 'text') {
                     gridHtml += `
                         <div class="flex flex-col items-center justify-center p-2 min-h-[120px] ${tilt}">
-                            <p class="font-handwritten text-lg md:text-2xl text-ink text-center leading-tight">"${item.content}"</p>
+                            <p class="font-handwritten text-base md:text-xl text-ink text-center leading-tight line-clamp-4">"${item.content}"</p>
                         </div>
                     `;
                 } else {
-                    // Safe string escaping for the onclick function
                     let safeSrc = item.src.replace(/'/g, "\\'");
                     let safeCaption = (item.caption || '').replace(/'/g, "\\'");
                     
@@ -410,12 +420,11 @@
                              <div class="absolute inset-0 bg-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i class="fa-solid fa-magnifying-glass text-ink/80 text-3xl md:text-4xl"></i></div>
                            </div>`;
                     
-                    // Added Expandable click trigger
                     gridHtml += `
                         <div class="w-full flex flex-col items-center ${tilt} transition-transform hover:scale-[1.03] duration-300 cursor-pointer" onclick="expandMedia('${safeSrc}', '${item.type}', '${safeCaption}')">
                             ${media}
-                            <div class="w-full flex flex-col items-center mt-2 px-1">
-                                <p class="font-handwritten text-base md:text-xl text-ink text-center leading-tight line-clamp-2" title="${item.caption || ''}">${item.caption || ''}</p>
+                            <div class="w-full flex flex-col items-center mt-1 px-1">
+                                <p class="font-handwritten text-sm md:text-base text-ink text-center leading-tight line-clamp-3" title="${item.caption || ''}">${item.caption || ''}</p>
                             </div>
                         </div>
                     `;
@@ -458,7 +467,6 @@
         }
 
         function closeExpandedMedia(e) {
-            // Only close if clicking the background or the X button
             if (e.target.tagName.toLowerCase() === 'img' || e.target.tagName.toLowerCase() === 'video') return;
             
             document.getElementById('expanded-media-modal').classList.remove('active');
@@ -521,7 +529,6 @@
         }
 
         document.querySelectorAll('.modal-overlay').forEach(modal => {
-            // Avoid closing if it's the expanded media modal (handled separately)
             if(modal.id !== 'expanded-media-modal') {
                 modal.addEventListener('click', function(e) { if (e.target === this) closeModals(); });
             }
