@@ -134,8 +134,8 @@
                 <div class="hotspot" style="top: 38%; left: 14%; width: 5%; height: 12%;" onclick="changeAwardPage(-1)" title="Previous Page"></div>
                 <div class="hotspot" style="top: 38%; right: 14%; width: 5%; height: 12%;" onclick="changeAwardPage(1)" title="Next Page"></div>
 
-                <!-- Display Case: Height expanded to 32% and bottom padding removed to ensure trophies drop completely to the wooden shelf level -->
-                <div class="absolute flex flex-row items-end justify-between pb-0" style="top: 27%; left: 20%; width: 60%; height: 32%;">
+                <!-- Display Case: Top shifted down to 29%, Height reduced to 27%. This raises the floor so the image rests on the shelf -->
+                <div class="absolute flex flex-row items-end justify-between pb-0" style="top: 29%; left: 20%; width: 60%; height: 27%;">
                     
                     <!-- Left Cabinet -->
                     <div id="award-image-left" class="w-1/2 h-full flex items-end justify-center px-2 md:px-6 opacity-0 transition-opacity duration-300"></div>
@@ -144,7 +144,7 @@
                     <div id="award-image-right" class="w-1/2 h-full flex items-end justify-center px-2 md:px-6 opacity-0 transition-opacity duration-300"></div>
                 </div>
 
-                <!-- Trophy Log Book: Text scaling reduced and overflow enabled -->
+                <!-- Trophy Log Book -->
                 <div class="absolute flex flex-row items-start justify-between pt-[2.5%]" style="top: 66%; left: 16%; width: 68%; height: 23%;">
                     
                     <!-- Left Log Page -->
@@ -267,7 +267,7 @@
         window.onload = fetchScrapbookData;
 
         // ----------------------------------------------------
-        // TROPHY CASE RENDERING LOGIC (2 Per Page)
+        // TROPHY CASE RENDERING LOGIC
         // ----------------------------------------------------
         function openAwardsModal() {
             awardPage = 1;
