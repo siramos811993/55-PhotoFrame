@@ -107,7 +107,7 @@
             </div>
         </div>
 
-        <!-- 1. STANDARD INFO MODAL (For Story & Crew) -->
+        <!-- 1. STANDARD INFO MODAL -->
         <div id="info-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-6">
             <div id="info-content-wrapper" class="bg-parchment border border-ink/20 rounded-[2px] shadow-[0_0_40px_rgba(0,0,0,0.6)] w-[95%] max-w-4xl h-[80vh] sm:h-[85vh] flex flex-col relative overflow-hidden origin-center">
                 <header class="flex justify-between items-center p-4 sm:p-6 border-b border-ink/10 bg-[#fbf8f1] shrink-0">
@@ -123,7 +123,7 @@
             </div>
         </div>
 
-        <!-- 2. TROPHY CASE MODAL (2-Awards Per Page) -->
+        <!-- 2. TROPHY CASE MODAL -->
         <div id="awards-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-2 sm:p-4 md:p-8">
             <div id="awards-content-wrapper" class="w-full max-w-5xl max-h-[90vh] origin-center relative overflow-hidden bg-center bg-no-repeat bg-[length:100%_100%] drop-shadow-[0_0_50px_rgba(0,0,0,0.9)]" style="aspect-ratio: 1.5 / 1; background-image: url('Main%20Frame.png');">
                 
@@ -134,7 +134,6 @@
                 <div class="hotspot" style="top: 38%; left: 14%; width: 5%; height: 12%;" onclick="changeAwardPage(-1)" title="Previous Page"></div>
                 <div class="hotspot" style="top: 38%; right: 14%; width: 5%; height: 12%;" onclick="changeAwardPage(1)" title="Next Page"></div>
 
-                <!-- Display Case: Top shifted down, Height reduced, Bottom padding increased so PNGs sit cleanly on the shelf -->
                 <div class="absolute flex flex-row items-end justify-between pb-[2%]" style="top: 27%; left: 20%; width: 60%; height: 28%;">
                     
                     <!-- Left Cabinet -->
@@ -144,14 +143,14 @@
                     <div id="award-image-right" class="w-1/2 h-full flex items-end justify-center px-2 md:px-6 opacity-0 transition-opacity duration-300"></div>
                 </div>
 
-                <!-- Trophy Log Book: Split into Two Pages -->
+                <!-- Trophy Log Book: Text scaling reduced and overflow enabled -->
                 <div class="absolute flex flex-row items-start justify-between pt-[2.5%]" style="top: 66%; left: 16%; width: 68%; height: 23%;">
                     
                     <!-- Left Log Page -->
-                    <div id="award-text-left" class="w-1/2 h-full flex flex-col items-center justify-start px-6 md:px-10 opacity-0 transition-opacity duration-300 text-ink"></div>
+                    <div id="award-text-left" class="w-1/2 h-full flex flex-col items-center justify-start px-6 md:px-10 opacity-0 transition-opacity duration-300 text-ink overflow-y-auto album-scrollbar pb-2"></div>
                     
                     <!-- Right Log Page -->
-                    <div id="award-text-right" class="w-1/2 h-full flex flex-col items-center justify-start px-6 md:px-10 opacity-0 transition-opacity duration-300 text-ink"></div>
+                    <div id="award-text-right" class="w-1/2 h-full flex flex-col items-center justify-start px-6 md:px-10 opacity-0 transition-opacity duration-300 text-ink overflow-y-auto album-scrollbar pb-2"></div>
                 </div>
             </div>
         </div>
@@ -225,7 +224,7 @@
         let currentMoment = 0;
         let currentMessage = 0;
         let awardPage = 1;
-        const AWARDS_PER_PAGE = 2; // Split left and right
+        const AWARDS_PER_PAGE = 2;
 
         async function fetchScrapbookData() {
             try {
@@ -248,7 +247,6 @@
                 if (momentsData.length === 0) momentsData = [{type: 'text', caption: 'No moments added yet!', author: 'System'}];
                 if (messagesData.length === 0) messagesData = [{type: 'text', content: 'No messages added yet!', author: 'System'}];
                 
-                // Fallback demonstrating the 2-per-page logic
                 if (awardsData.length === 0) {
                     awardsData = [
                         { src: '', title: 'Awaiting Records', description: 'Add your first award to the Google Sheet under the "awards" category.' },
@@ -295,23 +293,23 @@
                 let leftData = awardsData[startIdx];
                 let rightData = awardsData[startIdx + 1];
 
-                // Render Left Cabinet & Left Page
+                // Added object-bottom so the image physically rests on the shelf.
+                // Removed line-clamp from the text.
                 if (leftData) {
-                    imgLeft.innerHTML = leftData.src ? `<img src="${leftData.src}" class="max-w-full max-h-full object-contain trophy-shadow" alt="Trophy">` : '';
+                    imgLeft.innerHTML = leftData.src ? `<img src="${leftData.src}" class="max-w-full max-h-full object-contain object-bottom trophy-shadow" alt="Trophy">` : '';
                     txtLeft.innerHTML = `
-                        <h3 class="font-serif text-base md:text-xl font-bold mb-1 text-ink/90 text-center leading-tight line-clamp-1" title="${leftData.title || ''}">${leftData.title || ''}</h3>
-                        <p class="font-handwritten text-sm md:text-lg text-ink/80 leading-tight text-center line-clamp-3">${leftData.description || ''}</p>
+                        <h3 class="font-serif text-sm md:text-lg font-bold mb-1 text-ink/90 text-center leading-tight">${leftData.title || ''}</h3>
+                        <p class="font-handwritten text-sm md:text-base text-ink/80 leading-tight text-center">${leftData.description || ''}</p>
                     `;
                 } else {
                     imgLeft.innerHTML = ''; txtLeft.innerHTML = '';
                 }
 
-                // Render Right Cabinet & Right Page
                 if (rightData) {
-                    imgRight.innerHTML = rightData.src ? `<img src="${rightData.src}" class="max-w-full max-h-full object-contain trophy-shadow" alt="Trophy">` : '';
+                    imgRight.innerHTML = rightData.src ? `<img src="${rightData.src}" class="max-w-full max-h-full object-contain object-bottom trophy-shadow" alt="Trophy">` : '';
                     txtRight.innerHTML = `
-                        <h3 class="font-serif text-base md:text-xl font-bold mb-1 text-ink/90 text-center leading-tight line-clamp-1" title="${rightData.title || ''}">${rightData.title || ''}</h3>
-                        <p class="font-handwritten text-sm md:text-lg text-ink/80 leading-tight text-center line-clamp-3">${rightData.description || ''}</p>
+                        <h3 class="font-serif text-sm md:text-lg font-bold mb-1 text-ink/90 text-center leading-tight">${rightData.title || ''}</h3>
+                        <p class="font-handwritten text-sm md:text-base text-ink/80 leading-tight text-center">${rightData.description || ''}</p>
                     `;
                 } else {
                     imgRight.innerHTML = ''; txtRight.innerHTML = '';
@@ -329,7 +327,6 @@
             if (awardPage < 1) awardPage = totalPages;
             renderAwardsPage();
         }
-
 
         // ----------------------------------------------------
         // Home Screen Carousel Rendering
@@ -432,7 +429,7 @@
         let scrapbookAlbums = [];
         let activeAlbum = '';
         let albumPage = 1;
-        const ITEMS_PER_PAGE = 4; // 2x2 grid layout
+        const ITEMS_PER_PAGE = 4;
 
         function openScrapbookModal(type) {
             scrapbookType = type;
