@@ -120,7 +120,7 @@
             </div>
         </div>
 
-        <!-- 2. CLEAN ASSET SCAPBOOK MODAL (Mapped Geometrically) -->
+        <!-- 2. CLEAN ASSET SCAPBOOK MODAL (Expanded Limits) -->
         <div id="scrapbook-modal" class="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2 sm:p-4 md:p-8">
             <div id="scrapbook-content-wrapper" class="flex flex-row w-full max-w-6xl max-h-[90vh] origin-center relative overflow-hidden bg-center bg-no-repeat bg-[length:100%_100%] drop-shadow-[0_0_50px_rgba(0,0,0,0.9)]" style="aspect-ratio: 1.6 / 1; background-image: url('popup-bg.png');">
                 
@@ -130,7 +130,6 @@
                 </button>
 
                 <!-- Left Page (Menu) -->
-                <!-- Top padding reduced significantly (pt-[7%]) to shift header up, font sizes reduced -->
                 <div class="w-1/2 h-full flex flex-col pt-[7%] pb-[8%] pl-[16%] pr-[6%] z-10 overflow-hidden">
                     <h2 id="sidebar-title" class="font-handwritten text-3xl md:text-4xl lg:text-5xl text-ink text-left mb-2 md:mb-4 drop-shadow-sm">ALBUMS</h2>
                     <div id="album-list" class="flex flex-col gap-2 overflow-y-auto album-scrollbar items-start w-full">
@@ -139,22 +138,22 @@
                 </div>
 
                 <!-- Right Page (Grid) -->
-                <!-- Top padding reduced significantly (pt-[5%]) to shift header up -->
-                <div class="w-1/2 h-full relative flex flex-col pt-[5%] pb-[8%] pr-[16%] pl-[6%] z-10">
+                <!-- PADDING EXPANDED: Reduced right padding to 8%, bottom to 4%, left to 4% to maximize graph paper usage -->
+                <div class="w-1/2 h-full relative flex flex-col pt-[5%] pb-[4%] pr-[8%] pl-[4%] z-10">
                     
                     <div class="flex flex-col pb-2 border-b border-ink/10 mb-2 md:mb-4">
                         <h2 id="scrapbook-title" class="font-handwritten text-3xl md:text-5xl text-ink m-0 leading-none">All Our Moments</h2>
-                        <!-- REMOVED "We Stand Our Watch" Label Here -->
                     </div>
                     
                     <div class="flex-1 relative flex items-center justify-center overflow-hidden">
                         <button onclick="changeAlbumPage(-1)" id="album-prev-btn" class="absolute left-0 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-left"></i></button>
                         
-                        <!-- 2x2 Grid with constrained image boxes. Padding reduced to px-2 to maximize image space -->
-                        <div id="scrapbook-grid" class="grid grid-cols-2 gap-3 md:gap-4 w-full h-full max-h-full overflow-y-auto album-scrollbar items-start content-start px-2 md:px-4">
+                        <!-- Grid internal padding increased slightly (px-6 md:px-8) so photos don't sit directly under the wide arrows -->
+                        <div id="scrapbook-grid" class="grid grid-cols-2 gap-4 md:gap-8 w-full h-full max-h-full overflow-y-auto album-scrollbar items-start content-start px-6 md:px-8">
                             <!-- Clean images and text injected here -->
                         </div>
                         
+                        <!-- The arrow is now positioned much closer to the physical right edge of the book -->
                         <button onclick="changeAlbumPage(1)" id="album-next-btn" class="absolute right-0 z-20 text-3xl md:text-4xl text-ink/40 hover:text-ink/90 transition-colors focus:outline-none"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
                     
@@ -380,7 +379,7 @@
             if (albumPage > totalPages) albumPage = totalPages;
             if (albumPage < 1) albumPage = 1;
 
-            // 1. RENDER LEFT MENU (Font size reduced)
+            // 1. RENDER LEFT MENU
             let albumHtml = '';
             scrapbookAlbums.forEach(album => {
                 let isActive = album === activeAlbum;
@@ -392,7 +391,7 @@
             });
             document.getElementById('album-list').innerHTML = albumHtml;
 
-            // 2. RENDER RIGHT GRID (Padding reduced, text resized to fit more content)
+            // 2. RENDER RIGHT GRID
             let gridHtml = '';
             let startIdx = (albumPage - 1) * ITEMS_PER_PAGE;
             let pageData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
@@ -423,8 +422,8 @@
                     gridHtml += `
                         <div class="w-full flex flex-col items-center ${tilt} transition-transform hover:scale-[1.03] duration-300 cursor-pointer" onclick="expandMedia('${safeSrc}', '${item.type}', '${safeCaption}')">
                             ${media}
-                            <div class="w-full flex flex-col items-center mt-1 px-1">
-                                <p class="font-handwritten text-sm md:text-base text-ink text-center leading-tight line-clamp-3" title="${item.caption || ''}">${item.caption || ''}</p>
+                            <div class="w-full flex flex-col items-center mt-2 px-1">
+                                <p class="font-handwritten text-base md:text-xl text-ink text-center leading-tight line-clamp-3" title="${item.caption || ''}">${item.caption || ''}</p>
                             </div>
                         </div>
                     `;
